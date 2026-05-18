@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HabitForge Lite 🚀
 
-## Getting Started
+A beautiful, production-ready personal productivity dashboard built with Next.js App Router, using a **private GitHub repository as the database**.
 
-First, run the development server:
+## ✨ Features
+
+- 📊 **Dashboard** — Animated stats, weekly focus chart, quick navigation
+- 📂 **Categories** — Hierarchical categories → subcategories with icons and colors
+- ✅ **Tasks** — Full CRUD with priority, duration targets, search and filter
+- ⏱️ **Focus Timer** — Circular progress timer with session saving
+- 📋 **Daily Logs** — Date-navigable logs with completion tracking
+- 📈 **Analytics** — Weekly/monthly trends, heatmap, category breakdowns (Recharts)
+- 🔐 **Auth** — Password-based login with JWT HTTP-only cookies
+- 📱 **Responsive** — Mobile-first, works on all screen sizes
+
+## 🏗️ Tech Stack
+
+| Layer | Tech |
+|-------|------|
+| Framework | Next.js 15 (App Router) |
+| Language | JavaScript |
+| State | Zustand |
+| Charts | Recharts |
+| GitHub API | Octokit |
+| Auth | JWT via `jose` |
+| Styling | Plain CSS Modules |
+| Deployment | Vercel |
+
+## 📁 Project Structure
+
+```
+├── app/
+│   ├── (app)/            # Protected pages (dashboard, tasks, etc.)
+│   ├── api/              # Server-side API routes
+│   ├── login/            # Auth page
+│   └── globals.css       # Design system
+├── components/
+│   ├── AppShell/
+│   ├── Navbar/
+│   └── Sidebar/
+├── lib/
+│   ├── github.js         # Octokit GitHub wrapper
+│   ├── storage.js        # Data access layer
+│   ├── analytics.js      # Analytics calculations
+│   └── auth.js           # JWT session utilities
+└── store/
+    └── appStore.js       # Zustand global store
+```
+
+## ⚙️ Setup
+
+### 1. Clone & Install
+
+```bash
+git clone <your-repo>
+cd habitforgelite
+npm install
+```
+
+### 2. Create Private GitHub Repository
+
+Create a **new private repository** on GitHub (e.g., `habitforge-data`). This will store all your data as JSON files.
+
+### 3. GitHub Personal Access Token
+
+1. Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate a new token with **`repo`** scope
+3. Copy the token
+
+### 4. Configure Environment Variables
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local`:
+
+```env
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-chars
+APP_PASSWORD=your-custom-password
+GITHUB_TOKEN=ghp_your_token_here
+GITHUB_OWNER=your-github-username
+GITHUB_REPO=habitforge-data
+```
+
+### 5. Run Locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) and log in with your `APP_PASSWORD`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🚀 Deploy to Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Push your code to GitHub
+2. Import the project on [vercel.com](https://vercel.com)
+3. Add all environment variables from `.env.local` in Vercel's dashboard
+4. Deploy!
 
-## Learn More
+## 📊 Data Structure
 
-To learn more about Next.js, take a look at the following resources:
+All data is stored as JSON in your private GitHub repo:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+habitforge-data/
+├── data/
+│   ├── categories.json
+│   ├── subcategories.json
+│   ├── tasks.json
+│   └── logs/
+│       ├── 2026-05-18.json
+│       └── 2026-05-19.json
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔐 Security
 
-## Deploy on Vercel
+- GitHub token is **never exposed to the frontend** — all GitHub API calls go through Next.js API routes
+- Sessions are stored in **HTTP-only cookies** (not accessible via JavaScript)
+- Middleware protects all pages and API routes
+- JWT expires after 7 days
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🎨 Design
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Color theme: **Graphite (#2b2b2b)** + **Pastel Pink (#febfca)**
+- Dark mode by default
+- Glassmorphism effects
+- Smooth micro-animations
+- Fully responsive (mobile → desktop)
