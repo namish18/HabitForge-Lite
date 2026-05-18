@@ -1,0 +1,224 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: width var(--transition-slow);
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 72px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  min-height: var(--navbar-height);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.logoIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 8px rgba(254, 191, 202, 0.5));
+}
+
+.logoTextWrap {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  animation: fadeIn 0.2s ease;
+}
+
+.logoText {
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logoBadge {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.toggleBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.toggleBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--pink);
+}
+
+.nav {
+  flex: 1;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all var(--transition);
+  position: relative;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.navItem:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.navItem.active {
+  background: var(--pink-glow);
+  color: var(--pink);
+  border: 1px solid var(--pink-muted);
+}
+
+.navIcon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.navLabel {
+  animation: fadeIn 0.15s ease;
+}
+
+.activeDot {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pink);
+}
+
+.bottom {
+  padding: 12px 10px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all var(--transition);
+  width: 100%;
+  white-space: nowrap;
+}
+
+.logoutBtn:hover {
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--red);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Mobile overlay */
+@media (max-width: 767px) {
+  .sidebar {
+    position: fixed;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-lg);
+    width: var(--sidebar-width) !important;
+    z-index: 200;
+  }
+  .sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 199;
+    animation: fadeIn 0.2s ease;
+  }
+  .hamburger {
+    display: flex;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 150;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all var(--transition);
+  }
+  .hamburger:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}
+
+@media (min-width: 768px) {
+  .hamburger { display: none; }
+  .backdrop { display: none; }
+}
