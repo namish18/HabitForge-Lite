@@ -81,8 +81,7 @@ export default function LoginPage() {
           </button>
         </form>
         <p className={styles.hint}>
-          Default password: <code>habitforge2024</code><br />
-          Change via <code>APP_PASSWORD</code> env var
+          Set your password via the <code>APP_PASSWORD</code> environment variable
         </p>
       </div>
     </div>
