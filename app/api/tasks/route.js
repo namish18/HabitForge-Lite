@@ -5,13 +5,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 async function authenticate() {
   const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  if (!session?.userId) throw new Error('Unauthorized');
+  return session;
 }
 
 export async function GET() {
   try {
-    await authenticate();
-    const tasks = await getTasks();
+    const session = await authenticate();
+    const tasks = await getTasks(session.userId);
     return NextResponse.json(tasks);
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,7 +22,7 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const body = await request.json();
     const { subcategoryId, title, description, targetMinutes, priority } = body;
 
@@ -29,7 +30,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Title and subcategoryId are required' }, { status: 400 });
     }
 
-    const tasks = await getTasks();
+    const tasks = await getTasks(session.userId);
     const newTask = {
       id: uuidv4(),
       subcategoryId,
@@ -41,7 +42,7 @@ export async function POST(request) {
     };
 
     tasks.push(newTask);
-    await saveTasks(tasks);
+    await saveTasks(tasks, session.userId);
     return NextResponse.json(newTask, { status: 201 });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -5,13 +5,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 async function authenticate() {
   const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  if (!session?.userId) throw new Error('Unauthorized');
+  return session;
 }
 
 export async function GET() {
   try {
-    await authenticate();
-    const categories = await getCategories();
+    const session = await authenticate();
+    const categories = await getCategories(session.userId);
     return NextResponse.json(categories);
   } catch (error) {
     if (error.message === 'Unauthorized') {
@@ -23,7 +24,7 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const body = await request.json();
     const { name, color, icon } = body;
 
@@ -31,7 +32,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
-    const categories = await getCategories();
+    const categories = await getCategories(session.userId);
     const newCategory = {
       id: uuidv4(),
       name: name.trim(),
@@ -41,7 +42,7 @@ export async function POST(request) {
     };
 
     categories.push(newCategory);
-    await saveCategories(categories);
+    await saveCategories(categories, session.userId);
 
     return NextResponse.json(newCategory, { status: 201 });
   } catch (error) {

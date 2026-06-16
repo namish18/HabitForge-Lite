@@ -1,20 +1,46 @@
 import { NextResponse } from 'next/server';
-import { signToken, validatePassword, COOKIE_NAME } from '@/lib/auth';
+import { signToken, COOKIE_NAME } from '@/lib/auth';
+import argon2 from 'argon2';
+import { getRegistry } from '@/lib/users';
+
+const INVALID_CREDENTIALS = { error: 'Invalid username or password' };
 
 export async function POST(request) {
   try {
-    const { password } = await request.json();
+    const { username, password } = await request.json();
 
-    if (!password) {
-      return NextResponse.json({ error: 'Password is required' }, { status: 400 });
+    if (!username || !password) {
+      return NextResponse.json(
+        { error: 'Username and password are required' },
+        { status: 400 }
+      );
     }
 
-    const isValid = await validatePassword(password);
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
+    const registry = await getRegistry();
+
+    const user = registry.find(
+      (u) => u.username === username
+    );
+
+    if (!user) {
+      return NextResponse.json(INVALID_CREDENTIALS, { status: 401 });
     }
 
-    const token = await signToken({ authenticated: true, createdAt: Date.now() });
+    const valid = await argon2.verify(
+      user.passwordHash,
+      password
+    );
+
+    if (!valid) {
+      return NextResponse.json(INVALID_CREDENTIALS, { status: 401 });
+    }
+
+    const token = await signToken({
+      userId: user.userId,
+      username: user.username,
+      authenticated: true,
+      createdAt: user.createdAt,
+    });
 
     const response = NextResponse.json({ success: true, message: 'Login successful' });
     response.cookies.set(COOKIE_NAME, token, {

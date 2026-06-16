@@ -1,23 +1,25 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
 import styles from './login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!password.trim()) return;
+    if (!username.trim() || !password.trim()) return;
     setLoading(true);
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -25,7 +27,7 @@ export default function LoginPage() {
         router.push('/');
         router.refresh();
       } else {
-        toast.error(data.error || 'Invalid password');
+        toast.error(data.error || 'Login failed');
       }
     } catch {
       toast.error('Connection error. Please try again.');
@@ -49,7 +51,24 @@ export default function LoginPage() {
         <p className={styles.subtitle}>Sign in to your productivity dashboard</p>
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className="form-group">
-            <label className="form-label" htmlFor="password">Password</label>
+            <label className="form-label" htmlFor="username">
+              Username
+            </label>
+            <input
+              id="username"
+              type="text"
+              className="form-input"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoFocus
+              autoComplete="username"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="password">
+              Password
+            </label>
             <input
               id="password"
               type="password"
@@ -57,7 +76,6 @@ export default function LoginPage() {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoFocus
               autoComplete="current-password"
             />
           </div>
@@ -65,7 +83,7 @@ export default function LoginPage() {
             id="login-btn"
             type="submit"
             className={`btn btn-primary btn-lg ${styles.submitBtn}`}
-            disabled={loading || !password.trim()}
+            disabled={loading || !username.trim() || !password.trim()}
           >
             {loading ? (
               <>
@@ -81,7 +99,10 @@ export default function LoginPage() {
           </button>
         </form>
         <p className={styles.hint}>
-          Set your password via the <code>APP_PASSWORD</code> environment variable
+          Don't have an account?{' '}
+          <Link href="/register" className={styles.link}>
+            Sign up here
+          </Link>
         </p>
       </div>
     </div>

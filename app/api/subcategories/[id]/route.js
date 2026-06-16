@@ -4,16 +4,17 @@ import { getSubcategories, saveSubcategories, getTasks, saveTasks } from '@/lib/
 
 async function authenticate() {
   const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  if (!session?.userId) throw new Error('Unauthorized');
+  return session;
 }
 
 export async function PUT(request, { params }) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const { id } = await params;
     const { name, categoryId } = await request.json();
 
-    const subcategories = await getSubcategories();
+    const subcategories = await getSubcategories(session.userId);
     const index = subcategories.findIndex((s) => s.id === id);
     if (index === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -23,7 +24,7 @@ export async function PUT(request, { params }) {
       ...(categoryId && { categoryId }),
     };
 
-    await saveSubcategories(subcategories);
+    await saveSubcategories(subcategories, session.userId);
     return NextResponse.json(subcategories[index]);
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -33,14 +34,20 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const { id } = await params;
 
-    const [subcategories, tasks] = await Promise.all([getSubcategories(), getTasks()]);
+    const [subcategories, tasks] = await Promise.all([
+      getSubcategories(session.userId),
+      getTasks(session.userId),
+    ]);
     const filteredSubs = subcategories.filter((s) => s.id !== id);
     const filteredTasks = tasks.filter((t) => t.subcategoryId !== id);
 
-    await Promise.all([saveSubcategories(filteredSubs), saveTasks(filteredTasks)]);
+    await Promise.all([
+      saveSubcategories(filteredSubs, session.userId),
+      saveTasks(filteredTasks, session.userId),
+    ]);
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
