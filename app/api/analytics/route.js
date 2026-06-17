@@ -9,6 +9,7 @@ import {
   calculateHeatmapData,
   calculateWeeklyScore,
   getPriorityDistribution,
+  calculateWeeklyHabitConsistency,
 } from '@/lib/analytics';
 import { format } from 'date-fns';
 
@@ -72,6 +73,10 @@ export async function GET(request) {
 
     if (type === 'priority') {
       return NextResponse.json(getPriorityDistribution(tasks));
+    }
+
+    if (type === 'weekly-habits') {
+      return NextResponse.json(calculateWeeklyHabitConsistency(allLogs, tasks, subcategories, categories));
     }
 
     return NextResponse.json({ error: 'Invalid type' }, { status: 400 });

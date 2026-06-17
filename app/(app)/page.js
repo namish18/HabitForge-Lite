@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
+import WeeklyHabitSummary from '@/components/WeeklyHabitSummary/WeeklyHabitSummary';
 import styles from './dashboard.module.css';
 
 export default function DashboardPage() {
@@ -62,6 +63,9 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* Weekly Habit Consistency Summary */}
+      <WeeklyHabitSummary />
 
       {/* Weekly Chart */}
       <div className={`card ${styles.chartCard}`}>
