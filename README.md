@@ -51,7 +51,7 @@ Create another private GitHub repository, which will act as the database. This r
 
 ### Step 4: Deploy and Configure Environment Variables
 
-Connect your Vercel account with GitHub and deploy the frontend. Go to the environment variables section in Vercel. You can check the env.local.example file and copy the variable names from it. Put your own password, API token, GitHub owner identity, and database repository name:
+Connect your Vercel account with GitHub and deploy the frontend. Go to the environment variables section in Vercel. You can check the `.env.local.example` file and copy the variable names from it. Put your own password, API token, GitHub owner identity, and database repository name:
 
 * GITHUB_TOKEN
   The personal access token generated in the second step.
