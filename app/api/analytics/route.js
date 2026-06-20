@@ -15,20 +15,21 @@ import { format } from 'date-fns';
 
 async function authenticate() {
   const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  if (!session?.userId) throw new Error('Unauthorized');
+  return session;
 }
 
 export async function GET(request) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'overview';
 
     const [categories, subcategories, tasks, allLogs] = await Promise.all([
-      getCategories(),
-      getSubcategories(),
-      getTasks(),
-      getAllLogs(90),
+      getCategories(session.userId),
+      getSubcategories(session.userId),
+      getTasks(session.userId),
+      getAllLogs(session.userId, 90),
     ]);
 
     const today = format(new Date(), 'yyyy-MM-dd');

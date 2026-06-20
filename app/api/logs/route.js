@@ -6,15 +6,16 @@ import { format } from 'date-fns';
 
 async function authenticate() {
   const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  if (!session?.userId) throw new Error('Unauthorized');
+  return session;
 }
 
 export async function GET(request) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const { searchParams } = new URL(request.url);
     const date = searchParams.get('date') || format(new Date(), 'yyyy-MM-dd');
-    const logs = await getDailyLog(date);
+    const logs = await getDailyLog(date, session.userId);
     return NextResponse.json(logs);
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -24,7 +25,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const body = await request.json();
     const { taskId, date, minutesSpent, completed, notes } = body;
 
@@ -41,7 +42,7 @@ export async function POST(request) {
       notes: notes || '',
     };
 
-    const logs = await upsertLogEntry(date, entry);
+    await upsertLogEntry(date, entry, session.userId);
     return NextResponse.json(entry, { status: 201 });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,7 +52,7 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const body = await request.json();
     const { id, date, ...updates } = body;
 
@@ -60,7 +61,7 @@ export async function PUT(request) {
     }
 
     const entry = { id, date, ...updates };
-    const logs = await upsertLogEntry(date, entry);
+    const logs = await upsertLogEntry(date, entry, session.userId);
     const updated = logs.find((l) => l.id === id);
     return NextResponse.json(updated);
   } catch (error) {
@@ -71,7 +72,7 @@ export async function PUT(request) {
 
 export async function DELETE(request) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const date = searchParams.get('date');
@@ -80,7 +81,7 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'id and date are required' }, { status: 400 });
     }
 
-    await deleteLogEntry(date, id);
+    await deleteLogEntry(date, id, session.userId);
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

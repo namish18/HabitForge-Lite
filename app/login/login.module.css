@@ -118,6 +118,18 @@
   color: var(--pink);
 }
 
+.link {
+  color: #febfca;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #f9a0b0;
+  text-decoration: underline;
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-30px) scale(1.05); }

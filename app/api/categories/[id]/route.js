@@ -4,17 +4,18 @@ import { getCategories, saveCategories, getSubcategories, saveSubcategories, get
 
 async function authenticate() {
   const session = await getSession();
-  if (!session) throw new Error('Unauthorized');
+  if (!session?.userId) throw new Error('Unauthorized');
+  return session;
 }
 
 export async function PUT(request, { params }) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const { id } = await params;
     const body = await request.json();
     const { name, color, icon } = body;
 
-    const categories = await getCategories();
+    const categories = await getCategories(session.userId);
     const index = categories.findIndex((c) => c.id === id);
     if (index === -1) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
@@ -27,7 +28,7 @@ export async function PUT(request, { params }) {
       ...(icon && { icon }),
     };
 
-    await saveCategories(categories);
+    await saveCategories(categories, session.userId);
     return NextResponse.json(categories[index]);
   } catch (error) {
     if (error.message === 'Unauthorized') {
@@ -39,13 +40,13 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await authenticate();
+    const session = await authenticate();
     const { id } = await params;
 
     const [categories, subcategories, tasks] = await Promise.all([
-      getCategories(),
-      getSubcategories(),
-      getTasks(),
+      getCategories(session.userId),
+      getSubcategories(session.userId),
+      getTasks(session.userId),
     ]);
 
     const subIds = subcategories.filter((s) => s.categoryId === id).map((s) => s.id);
@@ -54,9 +55,9 @@ export async function DELETE(request, { params }) {
     const filteredCats = categories.filter((c) => c.id !== id);
 
     await Promise.all([
-      saveCategories(filteredCats),
-      saveSubcategories(filteredSubs),
-      saveTasks(filteredTasks),
+      saveCategories(filteredCats, session.userId),
+      saveSubcategories(filteredSubs, session.userId),
+      saveTasks(filteredTasks, session.userId),
     ]);
 
     return NextResponse.json({ success: true });

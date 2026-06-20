@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
-const PUBLIC_PATHS = ['/login', '/api/auth/login'];
+const PUBLIC_PATHS = ['/login', '/register', '/api/auth/login', '/api/auth/register'];
 
 export async function proxy(request) {
   const { pathname } = request.nextUrl;
@@ -30,6 +30,15 @@ export async function proxy(request) {
   }
 
   const session = await verifyToken(token);
+  if (!session?.userId) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete('habitforge_session');
+    return response;
+  }
+
   if (!session) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
