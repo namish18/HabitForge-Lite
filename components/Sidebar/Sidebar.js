@@ -97,8 +97,9 @@ export default function Sidebar() {
 								id={item.id}
 								className={`${styles.navItem} ${isActive ? styles.active : ''}`}
 								title={!sidebarOpen ? item.label : undefined}
+								aria-label={item.label}
 							>
-								<IconComponent size={20} className={styles.navIcon} />
+								<IconComponent size={20} className={styles.navIcon} aria-hidden="true" />
 								{sidebarOpen && <span className={styles.navLabel}>{item.label}</span>}
 								{isActive && <span className={styles.activeDot} />}
 							</Link>
@@ -112,8 +113,9 @@ export default function Sidebar() {
 						className={styles.logoutBtn}
 						onClick={handleLogout}
 						title={!sidebarOpen ? 'Logout' : undefined}
+						aria-label="Logout"
 					>
-						<LogOut size={20} className={styles.navIcon} />
+						<LogOut size={20} className={styles.navIcon} aria-hidden="true" />
 						{sidebarOpen && <span>Logout</span>}
 					</button>
 				</div>
