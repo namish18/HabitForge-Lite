@@ -12,9 +12,19 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const passwordValid = /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password) && password.length >= 8;
-  const usernameValid = /^[a-zA-Z0-9]+$/.test(username) && username.length >= 3;
-  const passwordsMatch = password === confirmPassword && password.length > 0;
+  // ✅ ADDED: password visibility states
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const passwordValid =
+    /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password) &&
+    password.length >= 8;
+
+  const usernameValid =
+    /^[a-zA-Z0-9]+$/.test(username) && username.length >= 3;
+
+  const passwordsMatch =
+    password === confirmPassword && password.length > 0;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -25,7 +35,9 @@ export default function RegisterPage() {
     }
 
     if (!passwordValid) {
-      toast.error('Password must be 8+ characters with at least 1 number and 1 special character');
+      toast.error(
+        'Password must be 8+ characters with at least 1 number and 1 special character'
+      );
       return;
     }
 
@@ -61,14 +73,21 @@ export default function RegisterPage() {
         <div className={styles.orb1} />
         <div className={styles.orb2} />
       </div>
+
       <div className={styles.card}>
         <div className={styles.logo}>
           <span className={styles.logoIcon}>⚡</span>
           <span className={styles.logoText}>HabitForge Lite</span>
         </div>
+
         <h1 className={styles.title}>Get started</h1>
-        <p className={styles.subtitle}>Create your account to begin building habits</p>
+        <p className={styles.subtitle}>
+          Create your account to begin building habits
+        </p>
+
         <form onSubmit={handleSubmit} className={styles.form}>
+          
+          {/* Username */}
           <div className="form-group">
             <label className="form-label" htmlFor="username">
               Username
@@ -90,19 +109,41 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Password */}
           <div className="form-group">
             <label className="form-label" htmlFor="password">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              className="form-input"
-              placeholder="Password (8+ chars, 1 number, 1 special char)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-            />
+
+            <div style={{ position: 'relative' }}>
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="form-input"
+                placeholder="Password (8+ chars, 1 number, 1 special char)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+                style={{ paddingRight: '40px' }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+
             {password && !passwordValid && (
               <p style={{ fontSize: '0.875rem', color: '#ef4444', marginTop: '0.25rem' }}>
                 Password needs 8+ chars, 1 number, and 1 special character
@@ -110,19 +151,43 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Confirm Password */}
           <div className="form-group">
             <label className="form-label" htmlFor="confirmPassword">
               Confirm Password
             </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              className="form-input"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-            />
+
+            <div style={{ position: 'relative' }}>
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                className="form-input"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                style={{ paddingRight: '40px' }}
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {showConfirmPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+
             {confirmPassword && !passwordsMatch && (
               <p style={{ fontSize: '0.875rem', color: '#ef4444', marginTop: '0.25rem' }}>
                 Passwords do not match
@@ -130,11 +195,14 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Submit */}
           <button
             id="register-btn"
             type="submit"
             className={`btn btn-primary btn-lg ${styles.submitBtn}`}
-            disabled={loading || !usernameValid || !passwordValid || !passwordsMatch}
+            disabled={
+              loading || !usernameValid || !passwordValid || !passwordsMatch
+            }
           >
             {loading ? (
               <>
@@ -149,6 +217,7 @@ export default function RegisterPage() {
             )}
           </button>
         </form>
+
         <p className={styles.hint}>
           Already have an account?{' '}
           <Link href="/login" className={styles.link}>
