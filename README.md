@@ -32,22 +32,17 @@ The application follows a layered architecture consisting of the frontend, API r
 
 ```mermaid
 flowchart LR
+    A[User] --> B[Next.js Frontend]
+    B --> C[Next.js API Routes]
 
-A[User]
-A --> B[Next.js Frontend]
+    C --> D[Authentication Layer]
+    C --> E[Storage Layer]
 
-B --> C[Next.js API Routes]
+    D --> E
 
-C --> D[Authentication Layer]
-C --> E[Storage Layer]
-
-D --> E
-
-E --> F[GitHub Service (Octokit)]
-
-F --> G[GitHub REST API]
-
-G --> H[(Private GitHub Repository)]
+    E --> F[GitHub Service - Octokit]
+    F --> G[GitHub REST API]
+    G --> H[(Private GitHub Repository)]
 ```
 ### Component Overview
 
