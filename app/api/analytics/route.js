@@ -1,17 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { getCategories, getSubcategories, getTasks, getAllLogs } from '@/lib/storage';
-import {
-  calculateWeeklyData,
-  calculateMonthlyData,
-  calculateCategoryBreakdown,
-  calculateStreak,
-  calculateHeatmapData,
-  calculateWeeklyScore,
-  getPriorityDistribution,
-  calculateWeeklyHabitConsistency,
-} from '@/lib/analytics';
-import { format } from 'date-fns';
+import { getCategories, getSubcategories, getTasks, getDailyLog, getLogDates } from '@/lib/storage';
 
 async function authenticate() {
   const session = await getSession();
@@ -19,68 +8,50 @@ async function authenticate() {
   return session;
 }
 
+/**
+ * GET /api/analytics
+ * Returns all raw encrypted payloads so the browser can decrypt and compute
+ * analytics client-side.  The server cannot compute analytics because it
+ * cannot decrypt the data.
+ *
+ * Response:
+ * {
+ *   categories:    EncryptedPayload | null,
+ *   subcategories: EncryptedPayload | null,
+ *   tasks:         EncryptedPayload | null,
+ *   logs: {
+ *     [date]: EncryptedPayload | null,
+ *     ...
+ *   }
+ * }
+ */
 export async function GET(request) {
   try {
     const session = await authenticate();
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type') || 'overview';
 
-    const [categories, subcategories, tasks, allLogs] = await Promise.all([
+    // Fetch the list of log dates, then fetch each encrypted log blob in parallel
+    const [categoriesPayload, subcategoriesPayload, tasksPayload, logDates] = await Promise.all([
       getCategories(session.userId),
       getSubcategories(session.userId),
       getTasks(session.userId),
-      getAllLogs(session.userId, 90),
+      getLogDates(session.userId, 90),
     ]);
 
-    const today = format(new Date(), 'yyyy-MM-dd');
-    const todayLogs = allLogs[today] || [];
+    const logEntries = await Promise.all(
+      logDates.map(async (date) => {
+        const payload = await getDailyLog(date, session.userId);
+        return [date, payload];
+      })
+    );
 
-    if (type === 'overview') {
-      const weeklyData = calculateWeeklyData(allLogs, tasks);
-      const streak = calculateStreak(allLogs);
-      const weeklyScore = calculateWeeklyScore(allLogs);
-      const todayMinutes = todayLogs.reduce((s, l) => s + (l.minutesSpent || 0), 0);
-      const todayCompleted = todayLogs.filter((l) => l.completed).length;
+    const logs = Object.fromEntries(logEntries);
 
-      return NextResponse.json({
-        totalTasks: tasks.length,
-        todayCompleted,
-        todayMinutes,
-        weeklyScore,
-        streak,
-        completionRate: tasks.length
-          ? Math.round((todayCompleted / Math.max(tasks.length, 1)) * 100)
-          : 0,
-        activeCategories: categories.length,
-        weeklyData,
-      });
-    }
-
-    if (type === 'weekly') {
-      return NextResponse.json(calculateWeeklyData(allLogs, tasks));
-    }
-
-    if (type === 'monthly') {
-      return NextResponse.json(calculateMonthlyData(allLogs));
-    }
-
-    if (type === 'categories') {
-      return NextResponse.json(calculateCategoryBreakdown(allLogs, tasks, subcategories, categories));
-    }
-
-    if (type === 'heatmap') {
-      return NextResponse.json(calculateHeatmapData(allLogs));
-    }
-
-    if (type === 'priority') {
-      return NextResponse.json(getPriorityDistribution(tasks));
-    }
-
-    if (type === 'weekly-habits') {
-      return NextResponse.json(calculateWeeklyHabitConsistency(allLogs, tasks, subcategories, categories));
-    }
-
-    return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+    return NextResponse.json({
+      categories:    categoriesPayload,
+      subcategories: subcategoriesPayload,
+      tasks:         tasksPayload,
+      logs,
+    });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     return NextResponse.json({ error: error.message }, { status: 500 });
