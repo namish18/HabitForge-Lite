@@ -11,6 +11,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // ✅ ADDED: password visibility state
+  const [showPassword, setShowPassword] = useState(false);
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!username.trim() || !password.trim()) return;
@@ -42,14 +45,21 @@ export default function LoginPage() {
         <div className={styles.orb1} />
         <div className={styles.orb2} />
       </div>
+
       <div className={styles.card}>
         <div className={styles.logo}>
           <span className={styles.logoIcon}>⚡</span>
           <span className={styles.logoText}>HabitForge Lite</span>
         </div>
+
         <h1 className={styles.title}>Welcome back</h1>
-        <p className={styles.subtitle}>Sign in to your productivity dashboard</p>
+        <p className={styles.subtitle}>
+          Sign in to your productivity dashboard
+        </p>
+
         <form onSubmit={handleSubmit} className={styles.form}>
+          
+          {/* Username */}
           <div className="form-group">
             <label className="form-label" htmlFor="username">
               Username
@@ -65,20 +75,45 @@ export default function LoginPage() {
               autoComplete="username"
             />
           </div>
+
+          {/* Password WITH TOGGLE */}
           <div className="form-group">
             <label className="form-label" htmlFor="password">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              className="form-input"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
+
+            <div style={{ position: 'relative' }}>
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="form-input"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                style={{ paddingRight: '40px' }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
           </div>
+
+          {/* Submit Button */}
           <button
             id="login-btn"
             type="submit"
@@ -98,6 +133,7 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
         <p className={styles.hint}>
           Don't have an account?{' '}
           <Link href="/register" className={styles.link}>
