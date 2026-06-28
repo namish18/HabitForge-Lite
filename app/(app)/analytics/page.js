@@ -1,23 +1,36 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
+import {
+  calculateWeeklyData,
+  calculateMonthlyData,
+  calculateCategoryBreakdown,
+  calculateHeatmapData,
+  calculateWeeklyScore,
+  calculateStreak,
+  getPriorityDistribution,
+} from '@/lib/analytics';
+import {
+  decryptWithSession,
+  isEncryptedPayload,
+  hasSessionPassword,
+} from '@/lib/crypto';
 import styles from './analytics.module.css';
 
 const TOOLTIP_STYLE = {
   contentStyle: {
-    background: '#252525',
-    border: '1px solid #383838',
-    borderRadius: 8,
-    color: '#f0f0f0',
-    fontSize: 12,
+    background: '#252525', border: '1px solid #383838',
+    borderRadius: 8, color: '#f0f0f0', fontSize: 12,
   },
 };
 
 export default function AnalyticsPage() {
+  const router = useRouter();
   const [weekly, setWeekly] = useState([]);
   const [monthly, setMonthly] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
@@ -28,38 +41,69 @@ export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const [ov, wk, mn, cat, hm, pr] = await Promise.all([
-          fetch('/api/analytics?type=overview').then((r) => r.json()),
-          fetch('/api/analytics?type=weekly').then((r) => r.json()),
-          fetch('/api/analytics?type=monthly').then((r) => r.json()),
-          fetch('/api/analytics?type=categories').then((r) => r.json()),
-          fetch('/api/analytics?type=heatmap').then((r) => r.json()),
-          fetch('/api/analytics?type=priority').then((r) => r.json()),
-        ]);
-        setOverview(ov);
-        setWeekly(Array.isArray(wk) ? wk : []);
-        setMonthly(Array.isArray(mn) ? mn : []);
-        setCategoryData(Array.isArray(cat) ? cat : []);
-        setHeatmap(typeof hm === 'object' && !Array.isArray(hm) ? hm : {});
-        setPriority(Array.isArray(pr) ? pr : []);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    }
+    if (!hasSessionPassword()) { router.push('/login'); return; }
     load();
   }, []);
+
+  async function load() {
+    setLoading(true);
+    try {
+      // Single request returns all encrypted blobs for all collections + logs
+      const bundle = await fetch('/api/analytics').then((r) => r.json());
+
+      // Decrypt all collections in parallel.  Keys are cached after first derivation
+      // so the cost is paid once per unique file per session.
+      const [cats, subs, tasks] = await Promise.all([
+        safeDecryptArray(bundle.categories),
+        safeDecryptArray(bundle.subcategories),
+        safeDecryptArray(bundle.tasks),
+      ]);
+
+      // Decrypt all log files in parallel
+      const logEntries = await Promise.all(
+        Object.entries(bundle.logs || {}).map(async ([date, payload]) => {
+          const logs = await safeDecryptArray(payload);
+          return [date, logs];
+        })
+      );
+      const allLogs = Object.fromEntries(logEntries);
+
+      // All analytics computed purely in the browser from decrypted data
+      const wk    = calculateWeeklyData(allLogs, tasks);
+      const mn    = calculateMonthlyData(allLogs);
+      const cat   = calculateCategoryBreakdown(allLogs, tasks, subs, cats);
+      const hm    = calculateHeatmapData(allLogs);
+      const pr    = getPriorityDistribution(tasks);
+      const score = calculateWeeklyScore(allLogs);
+      const streak = calculateStreak(allLogs);
+      const today = new Date().toISOString().split('T')[0];
+      const todayLogs = allLogs[today] || [];
+      const todayMinutes = todayLogs.reduce((s, l) => s + (l.minutesSpent || 0), 0);
+      const todayCompleted = todayLogs.filter((l) => l.completed).length;
+
+      setOverview({ weeklyScore: score, streak, todayMinutes, todayCompleted });
+      setWeekly(wk);
+      setMonthly(mn);
+      setCategoryData(cat);
+      setHeatmap(hm);
+      setPriority(pr);
+    } catch (e) {
+      if (e.message?.includes('No active session')) { router.push('/login'); return; }
+      console.error('Analytics error'); // intentionally no plaintext in error log
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function safeDecryptArray(payload) {
+    if (!payload || !isEncryptedPayload(payload)) return [];
+    return decryptWithSession(payload);
+  }
 
   if (loading) {
     return (
       <div className="page-wrapper">
-        <div className="loading-overlay">
-          <div className="loading-spinner" style={{ width: 32, height: 32 }} />
-        </div>
+        <div className="loading-overlay"><div className="loading-spinner" style={{ width: 32, height: 32 }} /></div>
       </div>
     );
   }
@@ -73,7 +117,6 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Overview Stats */}
       <div className={styles.overviewGrid}>
         {[
           { label: 'Weekly Score', value: `${overview?.weeklyScore ?? 0}%`, icon: '📈', color: 'var(--pink)' },
@@ -89,7 +132,6 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
-      {/* Tab Nav */}
       <div className={styles.tabs}>
         {['overview', 'weekly', 'monthly', 'categories', 'heatmap'].map((tab) => (
           <button
@@ -103,7 +145,6 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
-      {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className={styles.chartsGrid}>
           <div className={`card ${styles.chartCard}`}>
@@ -131,17 +172,13 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie data={priority} cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3} dataKey="value">
-                    {priority.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
+                    {priority.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                   </Pie>
                   <Tooltip {...TOOLTIP_STYLE} />
                   <Legend formatter={(v) => <span style={{ color: '#a0a0a0', fontSize: 12 }}>{v}</span>} />
                 </PieChart>
               </ResponsiveContainer>
-            ) : (
-              <EmptyChart />
-            )}
+            ) : <EmptyChart />}
           </div>
 
           <div className={`card ${styles.chartCard}`}>
@@ -167,9 +204,7 @@ export default function AnalyticsPage() {
                   <YAxis type="category" dataKey="name" tick={{ fill: '#a0a0a0', fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
                   <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [`${Math.round(v / 60)}h ${v % 60}m`, 'Focus']} />
                   <Bar dataKey="totalMinutes" radius={[0, 4, 4, 0]} maxBarSize={20}>
-                    {categoryData.slice(0, 6).map((entry, i) => (
-                      <Cell key={i} fill={entry.color || '#febfca'} />
-                    ))}
+                    {categoryData.slice(0, 6).map((entry, i) => <Cell key={i} fill={entry.color || '#febfca'} />)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -178,7 +213,6 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* Weekly Tab */}
       {activeTab === 'weekly' && (
         <div className={styles.chartsGrid}>
           <div className={`card ${styles.chartCardWide}`}>
@@ -214,7 +248,6 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* Monthly Tab */}
       {activeTab === 'monthly' && (
         <div className={styles.chartsGrid}>
           <div className={`card ${styles.chartCardWide}`}>
@@ -244,7 +277,6 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* Categories Tab */}
       {activeTab === 'categories' && (
         <div>
           {categoryData.length === 0 ? (
@@ -273,11 +305,10 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* Heatmap Tab */}
       {activeTab === 'heatmap' && (
         <div className={`card ${styles.heatmapCard}`}>
           <h3 className={styles.chartTitle}>Activity Heatmap — Last 365 Days</h3>
-          <Heatmap data={heatmap} />
+          <HeatmapView data={heatmap} />
           <div className={styles.heatmapLegend}>
             <span className={styles.legendLabel}>Less</span>
             {[0, 1, 2, 3, 4].map((level) => (
@@ -291,34 +322,23 @@ export default function AnalyticsPage() {
   );
 }
 
-function Heatmap({ data }) {
+function HeatmapView({ data }) {
   const entries = Object.values(data).sort((a, b) => a.date.localeCompare(b.date));
   if (entries.length === 0) return <EmptyChart />;
-
-  // Group into weeks
   const weeks = [];
   let week = [];
-  entries.forEach((entry, i) => {
+  entries.forEach((entry) => {
     week.push(entry);
-    if (week.length === 7) {
-      weeks.push(week);
-      week = [];
-    }
+    if (week.length === 7) { weeks.push(week); week = []; }
   });
   if (week.length) weeks.push(week);
-
   return (
     <div className={styles.heatmapWrap}>
       <div className={styles.heatmapGrid}>
         {weeks.map((w, wi) => (
           <div key={wi} className={styles.heatmapWeek}>
             {w.map((day) => (
-              <div
-                key={day.date}
-                className={styles.heatmapCell}
-                style={{ background: heatColor(day.level) }}
-                title={`${day.date}: ${day.totalMinutes}m`}
-              />
+              <div key={day.date} className={styles.heatmapCell} style={{ background: heatColor(day.level) }} title={`${day.date}: ${day.totalMinutes}m`} />
             ))}
           </div>
         ))}
@@ -328,8 +348,7 @@ function Heatmap({ data }) {
 }
 
 function heatColor(level) {
-  const colors = ['#1e1e1e', 'rgba(254,191,202,0.25)', 'rgba(254,191,202,0.5)', 'rgba(254,191,202,0.75)', '#febfca'];
-  return colors[level] || colors[0];
+  return ['#1e1e1e', 'rgba(254,191,202,0.25)', 'rgba(254,191,202,0.5)', 'rgba(254,191,202,0.75)', '#febfca'][level] || '#1e1e1e';
 }
 
 function EmptyChart() {

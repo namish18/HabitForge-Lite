@@ -1,7 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './categories.module.css';
+import {
+  encryptWithSession,
+  decryptWithSession,
+  isEncryptedPayload,
+  hasSessionPassword,
+} from '@/lib/crypto';
 
 const ICONS = ['📁', '💻', '📚', '🎨', '💪', '🍎', '🎯', '🏆', '🌟', '💡', '🔬', '🎵', '✍️', '🧘', '🚀', '💰'];
 const COLORS = [
@@ -10,6 +18,7 @@ const COLORS = [
 ];
 
 export default function CategoriesPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -24,26 +33,60 @@ export default function CategoriesPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    if (!hasSessionPassword()) {
+      router.push('/login');
+      return;
+    }
     loadData();
   }, []);
+
+  // ─── Fetch & decrypt all collections ─────────────────────────────────────────
 
   async function loadData() {
     setLoading(true);
     try {
-      const [cats, subs, tsks] = await Promise.all([
+      const [catPayload, subPayload, taskPayload] = await Promise.all([
         fetch('/api/categories').then((r) => r.json()),
         fetch('/api/subcategories').then((r) => r.json()),
         fetch('/api/tasks').then((r) => r.json()),
       ]);
-      setCategories(Array.isArray(cats) ? cats : []);
-      setSubcategories(Array.isArray(subs) ? subs : []);
-      setTasks(Array.isArray(tsks) ? tsks : []);
+
+      setCategories(await safeDecrypt(catPayload, []));
+      setSubcategories(await safeDecrypt(subPayload, []));
+      setTasks(await safeDecrypt(taskPayload, []));
     } catch (e) {
-      toast.error('Failed to load data');
+      if (e.message && e.message.includes('No active session')) {
+        router.push('/login');
+      } else {
+        toast.error('Failed to load data');
+      }
     } finally {
       setLoading(false);
     }
   }
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+  async function safeDecrypt(payload, fallback) {
+    if (payload === null || payload === undefined) return fallback;
+    if (!isEncryptedPayload(payload)) return fallback;
+    return decryptWithSession(payload);
+  }
+
+  // Encrypt the full collection and POST/PUT/DELETE it to the given route.
+  async function writeCollection(url, method, body) {
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Save failed');
+    }
+  }
+
+  // ─── Category CRUD ────────────────────────────────────────────────────────────
 
   function openCreateModal() {
     setEditing(null);
@@ -56,6 +99,73 @@ export default function CategoriesPage() {
     setForm({ name: cat.name, color: cat.color, icon: cat.icon });
     setShowModal(true);
   }
+
+  async function handleSaveCategory() {
+    if (!form.name.trim()) return toast.error('Name is required');
+    setSaving(true);
+    try {
+      let updated;
+      if (editing) {
+        updated = categories.map((c) =>
+          c.id === editing.id ? { ...c, ...form, name: form.name.trim() } : c
+        );
+      } else {
+        const newCat = {
+          id: uuidv4(),
+          name: form.name.trim(),
+          color: form.color || '#febfca',
+          icon: form.icon || '📁',
+          createdAt: new Date().toISOString(),
+        };
+        updated = [...categories, newCat];
+      }
+
+      const encryptedPayload = await encryptWithSession(updated);
+
+      if (editing) {
+        await writeCollection(`/api/categories/${editing.id}`, 'PUT', { encryptedPayload });
+        toast.success('Category updated');
+      } else {
+        await writeCollection('/api/categories', 'POST', { encryptedPayload });
+        toast.success('Category created');
+      }
+
+      setShowModal(false);
+      await loadData();
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDeleteCategory(id) {
+    if (!confirm('Delete this category and all its subcategories and tasks?')) return;
+    try {
+      const subIds = subcategories.filter((s) => s.categoryId === id).map((s) => s.id);
+      const filteredCats = categories.filter((c) => c.id !== id);
+      const filteredSubs = subcategories.filter((s) => s.categoryId !== id);
+      const filteredTasks = tasks.filter((t) => !subIds.includes(t.subcategoryId));
+
+      const [encryptedCategories, encryptedSubcategories, encryptedTasks] = await Promise.all([
+        encryptWithSession(filteredCats),
+        encryptWithSession(filteredSubs),
+        encryptWithSession(filteredTasks),
+      ]);
+
+      await writeCollection(`/api/categories/${id}`, 'DELETE', {
+        encryptedCategories,
+        encryptedSubcategories,
+        encryptedTasks,
+      });
+      toast.success('Category deleted');
+      await loadData();
+    } catch {
+      toast.error('Failed to delete');
+    }
+  }
+
+  // ─── Subcategory CRUD ─────────────────────────────────────────────────────────
 
   function openSubModal(categoryId) {
     setEditingSub(null);
@@ -70,66 +180,35 @@ export default function CategoriesPage() {
     setShowSubModal(true);
   }
 
-  async function handleSaveCategory() {
-    if (!form.name.trim()) return toast.error('Name is required');
-    setSaving(true);
-    try {
-      if (editing) {
-        const res = await fetch(`/api/categories/${editing.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
-        });
-        if (!res.ok) throw new Error('Failed to update');
-        toast.success('Category updated');
-      } else {
-        const res = await fetch('/api/categories', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
-        });
-        if (!res.ok) throw new Error('Failed to create');
-        toast.success('Category created');
-      }
-      setShowModal(false);
-      await loadData();
-    } catch (e) {
-      toast.error(e.message);
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleDeleteCategory(id) {
-    if (!confirm('Delete this category and all its subcategories and tasks?')) return;
-    try {
-      await fetch(`/api/categories/${id}`, { method: 'DELETE' });
-      toast.success('Category deleted');
-      await loadData();
-    } catch {
-      toast.error('Failed to delete');
-    }
-  }
-
   async function handleSaveSub() {
     if (!subForm.name.trim()) return toast.error('Name is required');
     setSaving(true);
     try {
+      let updated;
       if (editingSub) {
-        await fetch(`/api/subcategories/${editingSub.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(subForm),
-        });
+        updated = subcategories.map((s) =>
+          s.id === editingSub.id ? { ...s, name: subForm.name.trim(), categoryId: subForm.categoryId } : s
+        );
+      } else {
+        const newSub = {
+          id: uuidv4(),
+          categoryId: subForm.categoryId,
+          name: subForm.name.trim(),
+          createdAt: new Date().toISOString(),
+        };
+        updated = [...subcategories, newSub];
+      }
+
+      const encryptedPayload = await encryptWithSession(updated);
+
+      if (editingSub) {
+        await writeCollection(`/api/subcategories/${editingSub.id}`, 'PUT', { encryptedPayload });
         toast.success('Subcategory updated');
       } else {
-        await fetch('/api/subcategories', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(subForm),
-        });
+        await writeCollection('/api/subcategories', 'POST', { encryptedPayload });
         toast.success('Subcategory created');
       }
+
       setShowSubModal(false);
       await loadData();
     } catch {
@@ -142,7 +221,18 @@ export default function CategoriesPage() {
   async function handleDeleteSub(id) {
     if (!confirm('Delete this subcategory and all its tasks?')) return;
     try {
-      await fetch(`/api/subcategories/${id}`, { method: 'DELETE' });
+      const filteredSubs = subcategories.filter((s) => s.id !== id);
+      const filteredTasks = tasks.filter((t) => t.subcategoryId !== id);
+
+      const [encryptedSubcategories, encryptedTasks] = await Promise.all([
+        encryptWithSession(filteredSubs),
+        encryptWithSession(filteredTasks),
+      ]);
+
+      await writeCollection(`/api/subcategories/${id}`, 'DELETE', {
+        encryptedSubcategories,
+        encryptedTasks,
+      });
       toast.success('Subcategory deleted');
       await loadData();
     } catch {

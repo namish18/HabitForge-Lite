@@ -1,29 +1,95 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import WeeklyHabitSummary from '@/components/WeeklyHabitSummary/WeeklyHabitSummary';
+import {
+  calculateWeeklyData,
+  calculateWeeklyScore,
+  calculateStreak,
+  calculateWeeklyHabitConsistency,
+} from '@/lib/analytics';
+import {
+  decryptWithSession,
+  isEncryptedPayload,
+  hasSessionPassword,
+} from '@/lib/crypto';
 import styles from './dashboard.module.css';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [overview, setOverview] = useState(null);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [habitData, setHabitData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/analytics?type=overview')
-      .then((r) => r.json())
-      .then((data) => { setOverview(data); setLoading(false); })
-      .catch(() => setLoading(false));
+    if (!hasSessionPassword()) { router.push('/login'); return; }
+    load();
   }, []);
+
+  async function safeDecryptArray(payload) {
+    if (!payload || !isEncryptedPayload(payload)) return [];
+    return decryptWithSession(payload);
+  }
+
+  async function load() {
+    setLoading(true);
+    try {
+      // Reuse the analytics bundle endpoint (returns all encrypted blobs)
+      const bundle = await fetch('/api/analytics').then((r) => r.json());
+
+      const [cats, subs, tasks] = await Promise.all([
+        safeDecryptArray(bundle.categories),
+        safeDecryptArray(bundle.subcategories),
+        safeDecryptArray(bundle.tasks),
+      ]);
+
+      const logEntries = await Promise.all(
+        Object.entries(bundle.logs || {}).map(async ([date, payload]) => {
+          const logs = await safeDecryptArray(payload);
+          return [date, logs];
+        })
+      );
+      const allLogs = Object.fromEntries(logEntries);
+
+      const wk     = calculateWeeklyData(allLogs, tasks);
+      const score  = calculateWeeklyScore(allLogs);
+      const streak = calculateStreak(allLogs);
+      const today  = new Date().toISOString().split('T')[0];
+      const todayLogs = allLogs[today] || [];
+      const todayMinutes  = todayLogs.reduce((s, l) => s + (l.minutesSpent || 0), 0);
+      const todayCompleted = todayLogs.filter((l) => l.completed).length;
+      const completionRate = todayLogs.length > 0
+        ? Math.round((todayCompleted / todayLogs.length) * 100)
+        : 0;
+
+      setOverview({
+        totalTasks: tasks.length,
+        todayCompleted,
+        todayMinutes,
+        weeklyScore: score,
+        streak,
+        completionRate,
+        activeCategories: cats.length,
+      });
+      setWeeklyData(wk);
+      // Pre-compute habit summary so WeeklyHabitSummary doesn't need its own fetch
+      setHabitData(calculateWeeklyHabitConsistency(allLogs, tasks, subs, cats));
+    } catch (e) {
+      if (e.message?.includes('No active session')) { router.push('/login'); return; }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (loading) {
     return (
       <div className="page-wrapper">
-        <div className="loading-overlay">
-          <div className="loading-spinner" style={{ width: 32, height: 32 }} />
-        </div>
+        <div className="loading-overlay"><div className="loading-spinner" style={{ width: 32, height: 32 }} /></div>
       </div>
     );
   }
@@ -38,8 +104,6 @@ export default function DashboardPage() {
     { label: 'Categories', value: overview?.activeCategories ?? 0, icon: '📂', sub: 'Active' },
   ];
 
-  const weeklyData = overview?.weeklyData || [];
-
   return (
     <div className="page-wrapper">
       <div className="page-header">
@@ -52,7 +116,6 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Stats Grid */}
       <div className={styles.statsGrid}>
         {stats.map((s, i) => (
           <div key={i} className="stat-card" style={{ animationDelay: `${i * 0.05}s` }}>
@@ -64,16 +127,15 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Weekly Habit Consistency Summary */}
-      <WeeklyHabitSummary />
+      {/* WeeklyHabitSummary receives pre-decrypted, pre-computed data as a prop */}
+      <WeeklyHabitSummary data={habitData} />
 
-      {/* Weekly Chart */}
       <div className={`card ${styles.chartCard}`}>
         <div className={styles.chartHeader}>
           <h2 className={styles.chartTitle}>Weekly Focus Hours</h2>
           <span className="badge badge-pink">Last 7 days</span>
         </div>
-        {weeklyData.length > 0 ? (
+        {weeklyData.some((d) => d.focusHours > 0) ? (
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={weeklyData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
               <defs>
@@ -83,37 +145,13 @@ export default function DashboardPage() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#2e2e2e" vertical={false} />
-              <XAxis
-                dataKey="label"
-                tick={{ fill: '#666', fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fill: '#666', fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v) => `${v}h`}
-              />
+              <XAxis dataKey="label" tick={{ fill: '#666', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#666', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}h`} />
               <Tooltip
-                contentStyle={{
-                  background: '#252525',
-                  border: '1px solid #383838',
-                  borderRadius: 8,
-                  color: '#f0f0f0',
-                  fontSize: 12,
-                }}
+                contentStyle={{ background: '#252525', border: '1px solid #383838', borderRadius: 8, color: '#f0f0f0', fontSize: 12 }}
                 formatter={(v) => [`${v}h`, 'Focus Hours']}
               />
-              <Area
-                type="monotone"
-                dataKey="focusHours"
-                stroke="#febfca"
-                strokeWidth={2}
-                fill="url(#focusGrad)"
-                dot={{ fill: '#febfca', r: 4, strokeWidth: 0 }}
-                activeDot={{ r: 6, fill: '#febfca', stroke: '#f9a0b0', strokeWidth: 2 }}
-              />
+              <Area type="monotone" dataKey="focusHours" stroke="#febfca" strokeWidth={2} fill="url(#focusGrad)" dot={{ fill: '#febfca', r: 4, strokeWidth: 0 }} activeDot={{ r: 6, fill: '#febfca', stroke: '#f9a0b0', strokeWidth: 2 }} />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
@@ -125,7 +163,6 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Quick Links */}
       <div className={styles.quickLinks}>
         {[
           { href: '/categories', icon: '📂', label: 'Manage Categories', desc: 'Organize your work' },

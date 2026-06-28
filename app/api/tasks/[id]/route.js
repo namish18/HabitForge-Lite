@@ -8,40 +8,52 @@ async function authenticate() {
   return session;
 }
 
+function validatePayload(payload) {
+  return (
+    payload &&
+    payload.version === 1 &&
+    payload.algorithm === 'AES-256-GCM' &&
+    typeof payload.salt === 'string' &&
+    typeof payload.iv === 'string' &&
+    typeof payload.ciphertext === 'string'
+  );
+}
+
+/**
+ * PUT /api/tasks/[id]
+ * Body: { encryptedPayload }
+ */
 export async function PUT(request, { params }) {
   try {
     const session = await authenticate();
-    const { id } = await params;
-    const body = await request.json();
+    const { encryptedPayload } = await request.json();
 
-    const tasks = await getTasks(session.userId);
-    const index = tasks.findIndex((t) => t.id === id);
-    if (index === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    if (!validatePayload(encryptedPayload)) {
+      return NextResponse.json({ error: 'Invalid encrypted payload' }, { status: 400 });
+    }
 
-    tasks[index] = {
-      ...tasks[index],
-      ...(body.title && { title: body.title.trim() }),
-      ...(body.description !== undefined && { description: body.description }),
-      ...(body.targetMinutes && { targetMinutes: parseInt(body.targetMinutes) }),
-      ...(body.priority && { priority: body.priority }),
-      ...(body.subcategoryId && { subcategoryId: body.subcategoryId }),
-    };
-
-    await saveTasks(tasks, session.userId);
-    return NextResponse.json(tasks[index]);
+    await saveTasks(encryptedPayload, session.userId);
+    return NextResponse.json({ success: true });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
+/**
+ * DELETE /api/tasks/[id]
+ * Body: { encryptedPayload }
+ */
 export async function DELETE(request, { params }) {
   try {
     const session = await authenticate();
-    const { id } = await params;
-    const tasks = await getTasks(session.userId);
-    const filtered = tasks.filter((t) => t.id !== id);
-    await saveTasks(filtered, session.userId);
+    const { encryptedPayload } = await request.json();
+
+    if (!validatePayload(encryptedPayload)) {
+      return NextResponse.json({ error: 'Invalid encrypted payload' }, { status: 400 });
+    }
+
+    await saveTasks(encryptedPayload, session.userId);
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
