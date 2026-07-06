@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getCategories, saveCategories } from '@/lib/storage';
-import { v4 as uuidv4 } from 'uuid';
 
 async function authenticate() {
   const session = await getSession();
@@ -9,11 +8,17 @@ async function authenticate() {
   return session;
 }
 
+/**
+ * GET /api/categories
+ * Returns the encrypted payload stored in GitHub.
+ * Returns null when the file does not exist yet (new user).
+ * The browser decrypts this payload — the server never sees plaintext.
+ */
 export async function GET() {
   try {
     const session = await authenticate();
-    const categories = await getCategories(session.userId);
-    return NextResponse.json(categories);
+    const payload = await getCategories(session.userId);
+    return NextResponse.json(payload);   // null or EncryptedPayload
   } catch (error) {
     if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,29 +27,30 @@ export async function GET() {
   }
 }
 
+/**
+ * POST /api/categories
+ * Accepts a pre-encrypted payload from the browser and writes it to storage.
+ * Body: { encryptedPayload: { version, algorithm, salt, iv, ciphertext } }
+ * The server validates the payload shape but never decrypts it.
+ */
 export async function POST(request) {
   try {
     const session = await authenticate();
-    const body = await request.json();
-    const { name, color, icon } = body;
+    const { encryptedPayload } = await request.json();
 
-    if (!name?.trim()) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    if (
+      !encryptedPayload ||
+      encryptedPayload.version !== 1 ||
+      encryptedPayload.algorithm !== 'AES-256-GCM' ||
+      typeof encryptedPayload.salt !== 'string' ||
+      typeof encryptedPayload.iv !== 'string' ||
+      typeof encryptedPayload.ciphertext !== 'string'
+    ) {
+      return NextResponse.json({ error: 'Invalid encrypted payload' }, { status: 400 });
     }
 
-    const categories = await getCategories(session.userId);
-    const newCategory = {
-      id: uuidv4(),
-      name: name.trim(),
-      color: color || '#febfca',
-      icon: icon || '📁',
-      createdAt: new Date().toISOString(),
-    };
-
-    categories.push(newCategory);
-    await saveCategories(categories, session.userId);
-
-    return NextResponse.json(newCategory, { status: 201 });
+    await saveCategories(encryptedPayload, session.userId);
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

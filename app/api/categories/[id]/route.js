@@ -8,28 +8,33 @@ async function authenticate() {
   return session;
 }
 
+function validatePayload(payload) {
+  return (
+    payload &&
+    payload.version === 1 &&
+    payload.algorithm === 'AES-256-GCM' &&
+    typeof payload.salt === 'string' &&
+    typeof payload.iv === 'string' &&
+    typeof payload.ciphertext === 'string'
+  );
+}
+
+/**
+ * PUT /api/categories/[id]
+ * Accepts pre-encrypted updated-categories payload from the browser.
+ * Body: { encryptedPayload }
+ */
 export async function PUT(request, { params }) {
   try {
     const session = await authenticate();
-    const { id } = await params;
-    const body = await request.json();
-    const { name, color, icon } = body;
+    const { encryptedPayload } = await request.json();
 
-    const categories = await getCategories(session.userId);
-    const index = categories.findIndex((c) => c.id === id);
-    if (index === -1) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    if (!validatePayload(encryptedPayload)) {
+      return NextResponse.json({ error: 'Invalid encrypted payload' }, { status: 400 });
     }
 
-    categories[index] = {
-      ...categories[index],
-      ...(name && { name: name.trim() }),
-      ...(color && { color }),
-      ...(icon && { icon }),
-    };
-
-    await saveCategories(categories, session.userId);
-    return NextResponse.json(categories[index]);
+    await saveCategories(encryptedPayload, session.userId);
+    return NextResponse.json({ success: true });
   } catch (error) {
     if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -38,26 +43,33 @@ export async function PUT(request, { params }) {
   }
 }
 
+/**
+ * DELETE /api/categories/[id]
+ * Accepts pre-encrypted payloads for all three affected collections.
+ * Body: {
+ *   encryptedCategories,
+ *   encryptedSubcategories,
+ *   encryptedTasks
+ * }
+ * The browser has already decrypted, filtered, and re-encrypted each collection.
+ */
 export async function DELETE(request, { params }) {
   try {
     const session = await authenticate();
-    const { id } = await params;
+    const { encryptedCategories, encryptedSubcategories, encryptedTasks } = await request.json();
 
-    const [categories, subcategories, tasks] = await Promise.all([
-      getCategories(session.userId),
-      getSubcategories(session.userId),
-      getTasks(session.userId),
-    ]);
-
-    const subIds = subcategories.filter((s) => s.categoryId === id).map((s) => s.id);
-    const filteredSubs = subcategories.filter((s) => s.categoryId !== id);
-    const filteredTasks = tasks.filter((t) => !subIds.includes(t.subcategoryId));
-    const filteredCats = categories.filter((c) => c.id !== id);
+    if (
+      !validatePayload(encryptedCategories) ||
+      !validatePayload(encryptedSubcategories) ||
+      !validatePayload(encryptedTasks)
+    ) {
+      return NextResponse.json({ error: 'Invalid encrypted payload' }, { status: 400 });
+    }
 
     await Promise.all([
-      saveCategories(filteredCats, session.userId),
-      saveSubcategories(filteredSubs, session.userId),
-      saveTasks(filteredTasks, session.userId),
+      saveCategories(encryptedCategories, session.userId),
+      saveSubcategories(encryptedSubcategories, session.userId),
+      saveTasks(encryptedTasks, session.userId),
     ]);
 
     return NextResponse.json({ success: true });
