@@ -8,45 +8,55 @@ async function authenticate() {
   return session;
 }
 
+function validatePayload(payload) {
+  return (
+    payload &&
+    payload.version === 1 &&
+    payload.algorithm === 'AES-256-GCM' &&
+    typeof payload.salt === 'string' &&
+    typeof payload.iv === 'string' &&
+    typeof payload.ciphertext === 'string'
+  );
+}
+
+/**
+ * PUT /api/subcategories/[id]
+ * Body: { encryptedPayload }
+ */
 export async function PUT(request, { params }) {
   try {
     const session = await authenticate();
-    const { id } = await params;
-    const { name, categoryId } = await request.json();
+    const { encryptedPayload } = await request.json();
 
-    const subcategories = await getSubcategories(session.userId);
-    const index = subcategories.findIndex((s) => s.id === id);
-    if (index === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    if (!validatePayload(encryptedPayload)) {
+      return NextResponse.json({ error: 'Invalid encrypted payload' }, { status: 400 });
+    }
 
-    subcategories[index] = {
-      ...subcategories[index],
-      ...(name && { name: name.trim() }),
-      ...(categoryId && { categoryId }),
-    };
-
-    await saveSubcategories(subcategories, session.userId);
-    return NextResponse.json(subcategories[index]);
+    await saveSubcategories(encryptedPayload, session.userId);
+    return NextResponse.json({ success: true });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
+/**
+ * DELETE /api/subcategories/[id]
+ * Body: { encryptedSubcategories, encryptedTasks }
+ * Browser has already filtered and re-encrypted both collections.
+ */
 export async function DELETE(request, { params }) {
   try {
     const session = await authenticate();
-    const { id } = await params;
+    const { encryptedSubcategories, encryptedTasks } = await request.json();
 
-    const [subcategories, tasks] = await Promise.all([
-      getSubcategories(session.userId),
-      getTasks(session.userId),
-    ]);
-    const filteredSubs = subcategories.filter((s) => s.id !== id);
-    const filteredTasks = tasks.filter((t) => t.subcategoryId !== id);
+    if (!validatePayload(encryptedSubcategories) || !validatePayload(encryptedTasks)) {
+      return NextResponse.json({ error: 'Invalid encrypted payload' }, { status: 400 });
+    }
 
     await Promise.all([
-      saveSubcategories(filteredSubs, session.userId),
-      saveTasks(filteredTasks, session.userId),
+      saveSubcategories(encryptedSubcategories, session.userId),
+      saveTasks(encryptedTasks, session.userId),
     ]);
     return NextResponse.json({ success: true });
   } catch (error) {

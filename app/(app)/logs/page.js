@@ -1,10 +1,19 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { format, subDays, addDays, parseISO } from 'date-fns';
 import toast from 'react-hot-toast';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './logs.module.css';
+import {
+  encryptWithSession,
+  decryptWithSession,
+  isEncryptedPayload,
+  hasSessionPassword,
+} from '@/lib/crypto';
 
 export default function LogsPage() {
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [logs, setLogs] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -17,21 +26,35 @@ export default function LogsPage() {
   const [form, setForm] = useState({ taskId: '', minutesSpent: 30, completed: false, notes: '' });
 
   useEffect(() => {
-    fetch('/api/tasks').then((r) => r.json()).then((d) => setTasks(Array.isArray(d) ? d : []));
-    fetch('/api/categories').then((r) => r.json()).then((d) => setCategories(Array.isArray(d) ? d : []));
-    fetch('/api/subcategories').then((r) => r.json()).then((d) => setSubcategories(Array.isArray(d) ? d : []));
+    if (!hasSessionPassword()) { router.push('/login'); return; }
+    // Load reference data once
+    Promise.all([
+      fetch('/api/tasks').then((r) => r.json()),
+      fetch('/api/categories').then((r) => r.json()),
+      fetch('/api/subcategories').then((r) => r.json()),
+    ]).then(async ([tP, cP, sP]) => {
+      setTasks(await safeDecrypt(tP, []));
+      setCategories(await safeDecrypt(cP, []));
+      setSubcategories(await safeDecrypt(sP, []));
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
+    if (!hasSessionPassword()) return;
     loadLogs();
   }, [selectedDate]);
+
+  async function safeDecrypt(payload, fallback) {
+    if (payload === null || payload === undefined) return fallback;
+    if (!isEncryptedPayload(payload)) return fallback;
+    return decryptWithSession(payload);
+  }
 
   async function loadLogs() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/logs?date=${selectedDate}`);
-      const data = await res.json();
-      setLogs(Array.isArray(data) ? data : []);
+      const payload = await fetch(`/api/logs?date=${selectedDate}`).then((r) => r.json());
+      setLogs(await safeDecrypt(payload, []));
     } catch { toast.error('Failed to load logs'); }
     finally { setLoading(false); }
   }
@@ -52,21 +75,33 @@ export default function LogsPage() {
     if (!form.taskId) return toast.error('Select a task');
     setSaving(true);
     try {
+      let updated;
       if (editingLog) {
-        await fetch('/api/logs', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editingLog.id, date: selectedDate, ...form }),
-        });
+        updated = logs.map((l) =>
+          l.id === editingLog.id ? { ...l, ...form } : l
+        );
         toast.success('Log updated');
       } else {
-        await fetch('/api/logs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...form, date: selectedDate }),
-        });
+        const entry = {
+          id: uuidv4(),
+          taskId: form.taskId,
+          date: selectedDate,
+          minutesSpent: parseInt(form.minutesSpent) || 0,
+          completed: Boolean(form.completed),
+          notes: form.notes || '',
+        };
+        updated = [...logs, entry];
         toast.success('Log created');
       }
+
+      const encryptedPayload = await encryptWithSession(updated);
+      const res = await fetch('/api/logs', {
+        method: editingLog ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: selectedDate, encryptedPayload }),
+      });
+      if (!res.ok) throw new Error();
+
       setShowModal(false);
       await loadLogs();
     } catch { toast.error('Failed to save'); }
@@ -76,7 +111,13 @@ export default function LogsPage() {
   async function handleDelete(id) {
     if (!confirm('Delete this log entry?')) return;
     try {
-      await fetch(`/api/logs?id=${id}&date=${selectedDate}`, { method: 'DELETE' });
+      const filtered = logs.filter((l) => l.id !== id);
+      const encryptedPayload = await encryptWithSession(filtered);
+      await fetch('/api/logs', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: selectedDate, encryptedPayload }),
+      });
       toast.success('Entry deleted');
       await loadLogs();
     } catch { toast.error('Failed to delete'); }
@@ -84,10 +125,14 @@ export default function LogsPage() {
 
   async function toggleCompleted(log) {
     try {
+      const updated = logs.map((l) =>
+        l.id === log.id ? { ...l, completed: !l.completed } : l
+      );
+      const encryptedPayload = await encryptWithSession(updated);
       await fetch('/api/logs', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: log.id, date: selectedDate, completed: !log.completed }),
+        body: JSON.stringify({ date: selectedDate, encryptedPayload }),
       });
       await loadLogs();
     } catch { toast.error('Failed to update'); }
@@ -103,11 +148,7 @@ export default function LogsPage() {
     return sub ? categories.find((c) => c.id === sub.categoryId) : null;
   }
 
-  // Generate last 14 days for mini calendar
-  const recentDays = Array.from({ length: 14 }, (_, i) => {
-    const date = format(subDays(new Date(), 13 - i), 'yyyy-MM-dd');
-    return date;
-  });
+  const recentDays = Array.from({ length: 14 }, (_, i) => format(subDays(new Date(), 13 - i), 'yyyy-MM-dd'));
 
   return (
     <div className="page-wrapper">
@@ -119,7 +160,6 @@ export default function LogsPage() {
         <button className="btn btn-primary" onClick={openCreate} id="create-log-btn">+ Add Entry</button>
       </div>
 
-      {/* Date Navigator */}
       <div className={`card ${styles.dateNav}`}>
         <button className="btn btn-ghost btn-icon" onClick={() => setSelectedDate(format(subDays(parseISO(selectedDate), 1), 'yyyy-MM-dd'))}>←</button>
         <div className={styles.miniCalendar}>
@@ -139,28 +179,15 @@ export default function LogsPage() {
           const next = format(addDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
           if (next <= format(new Date(), 'yyyy-MM-dd')) setSelectedDate(next);
         }}>→</button>
-        <div className={styles.selectedDate}>
-          {format(parseISO(selectedDate), 'MMMM d, yyyy')}
-        </div>
+        <div className={styles.selectedDate}>{format(parseISO(selectedDate), 'MMMM d, yyyy')}</div>
       </div>
 
-      {/* Summary */}
       <div className={styles.summary}>
-        <div className="stat-card" style={{ flex: 1 }}>
-          <div className="stat-label">Entries</div>
-          <div className="stat-value">{logs.length}</div>
-        </div>
-        <div className="stat-card" style={{ flex: 1 }}>
-          <div className="stat-label">Focus Time</div>
-          <div className="stat-value">{totalMinutes < 60 ? `${totalMinutes}m` : `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`}</div>
-        </div>
-        <div className="stat-card" style={{ flex: 1 }}>
-          <div className="stat-label">Completed</div>
-          <div className="stat-value">{completedCount}</div>
-        </div>
+        <div className="stat-card" style={{ flex: 1 }}><div className="stat-label">Entries</div><div className="stat-value">{logs.length}</div></div>
+        <div className="stat-card" style={{ flex: 1 }}><div className="stat-label">Focus Time</div><div className="stat-value">{totalMinutes < 60 ? `${totalMinutes}m` : `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`}</div></div>
+        <div className="stat-card" style={{ flex: 1 }}><div className="stat-label">Completed</div><div className="stat-value">{completedCount}</div></div>
       </div>
 
-      {/* Logs */}
       {loading ? (
         <div className="loading-overlay"><div className="loading-spinner" style={{ width: 28, height: 28 }} /></div>
       ) : logs.length === 0 ? (
@@ -177,20 +204,12 @@ export default function LogsPage() {
             const cat = getCategory(log.taskId);
             return (
               <div key={log.id} className={`${styles.logCard} ${log.completed ? styles.logCompleted : ''}`}>
-                <button
-                  className={`${styles.checkBtn} ${log.completed ? styles.checked : ''}`}
-                  onClick={() => toggleCompleted(log)}
-                  title="Toggle completion"
-                >
+                <button className={`${styles.checkBtn} ${log.completed ? styles.checked : ''}`} onClick={() => toggleCompleted(log)} title="Toggle completion">
                   {log.completed ? '✓' : '○'}
                 </button>
                 <div className={styles.logInfo}>
                   <div className={styles.logTask}>{task?.title || 'Unknown Task'}</div>
-                  {cat && (
-                    <div className={styles.logCat} style={{ color: cat.color }}>
-                      {cat.icon} {cat.name}
-                    </div>
-                  )}
+                  {cat && <div className={styles.logCat} style={{ color: cat.color }}>{cat.icon} {cat.name}</div>}
                   {log.notes && <div className={styles.logNotes}>"{log.notes}"</div>}
                 </div>
                 <div className={styles.logRight}>
@@ -207,7 +226,6 @@ export default function LogsPage() {
         </div>
       )}
 
-      {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
           <div className="modal">

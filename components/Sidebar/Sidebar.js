@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
 import styles from './Sidebar.module.css';
+import { clearSessionPassword } from '@/lib/crypto';
 
 const NAV_ITEMS = [
 	{ href: '/', icon: Home, label: 'Dashboard', id: 'nav-dashboard' },
@@ -40,6 +41,9 @@ export default function Sidebar() {
 	async function handleLogout() {
 		try {
 			await fetch('/api/auth/logout', { method: 'POST' });
+			// Wipe the in-memory session password and derived-key cache.
+			// Without this call, the key material would linger until page reload.
+			clearSessionPassword();
 			toast.success('Logged out successfully');
 			router.push('/login');
 			router.refresh();

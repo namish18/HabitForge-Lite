@@ -1,43 +1,29 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+
 } from 'recharts';
 import styles from './WeeklyHabitSummary.module.css';
 
 const TOOLTIP_STYLE = {
   contentStyle: {
-    background: '#252525',
-    border: '1px solid #383838',
-    borderRadius: 8,
-    color: '#f0f0f0',
-    fontSize: 12,
+    background: '#252525', border: '1px solid #383838',
+    borderRadius: 8, color: '#f0f0f0', fontSize: 12,
   },
 };
 
-export default function WeeklyHabitSummary() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [expandedHabit, setExpandedHabit] = useState(null);
-
-  useEffect(() => {
-    fetch('/api/analytics?type=weekly-habits')
-      .then((r) => r.json())
-      .then((result) => {
-        setData(result);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className="loading-spinner" style={{ width: 24, height: 24 }} />
-      </div>
-    );
-  }
-
+/**
+ * WeeklyHabitSummary
+ *
+ * Receives pre-computed habit data as a `data` prop from the Dashboard page.
+ * The dashboard decrypts and computes all analytics client-side before passing
+ * the result here — this component never fetches from the API directly, which
+ * ensures no plaintext data leaves the browser via a separate network request.
+ *
+ * @param {{ data: { weeklyStats, habits } | null }} props
+ */
+export default function WeeklyHabitSummary({ data }) {
   if (!data) {
     return (
       <div className={styles.container}>
@@ -48,10 +34,11 @@ export default function WeeklyHabitSummary() {
 
   const { weeklyStats, habits } = data;
   const completionPercentage = weeklyStats.overallCompletionRate;
-  const getProgressColor = (percentage) => {
-    if (percentage >= 80) return '#6ee7b7';
-    if (percentage >= 60) return '#fbbf24';
-    if (percentage >= 40) return '#f97316';
+
+  const getProgressColor = (pct) => {
+    if (pct >= 80) return '#6ee7b7';
+    if (pct >= 60) return '#fbbf24';
+    if (pct >= 40) return '#f97316';
     return '#f87171';
   };
 
@@ -74,7 +61,6 @@ export default function WeeklyHabitSummary() {
         <div className={styles.badge}>{weeklyStats.habitsTrackedThisWeek} habits tracked</div>
       </div>
 
-      {/* Overall Stats */}
       <div className={styles.statsRow}>
         <div className={styles.statCard}>
           <div className={styles.statLabel}>Completion Rate</div>
@@ -82,9 +68,7 @@ export default function WeeklyHabitSummary() {
             <svg viewBox="0 0 100 100" className={styles.circleProgressSvg}>
               <circle cx="50" cy="50" r="45" className={styles.progressBg} />
               <circle
-                cx="50"
-                cy="50"
-                r="45"
+                cx="50" cy="50" r="45"
                 className={styles.progressFill}
                 style={{
                   strokeDasharray: `${completionPercentage * 2.83} 282.7`,
@@ -98,47 +82,31 @@ export default function WeeklyHabitSummary() {
 
         <div className={styles.statCard}>
           <div className={styles.statLabel}>Completed Tasks</div>
-          <div className={styles.statValue} style={{ color: '#6ee7b7' }}>
-            {weeklyStats.totalCompleted}
-          </div>
+          <div className={styles.statValue} style={{ color: '#6ee7b7' }}>{weeklyStats.totalCompleted}</div>
           <div className={styles.statSub}>this week</div>
         </div>
 
         <div className={styles.statCard}>
           <div className={styles.statLabel}>Missed Tasks</div>
-          <div className={styles.statValue} style={{ color: '#f87171' }}>
-            {weeklyStats.totalMissed}
-          </div>
+          <div className={styles.statValue} style={{ color: '#f87171' }}>{weeklyStats.totalMissed}</div>
           <div className={styles.statSub}>this week</div>
         </div>
 
         <div className={styles.statCard}>
           <div className={styles.statLabel}>Total Logged</div>
-          <div className={styles.statValue} style={{ color: '#60a5fa' }}>
-            {weeklyStats.totalLogged}
-          </div>
+          <div className={styles.statValue} style={{ color: '#60a5fa' }}>{weeklyStats.totalLogged}</div>
           <div className={styles.statSub}>entries</div>
         </div>
       </div>
 
-      {/* Daily Completion Chart */}
       {weekData.some((d) => d.total > 0) && (
         <div className={styles.chartContainer}>
           <h3 className={styles.chartTitle}>Daily Completion</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={weekData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#2e2e2e" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fill: '#666', fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fill: '#666', fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
+              <XAxis dataKey="date" tick={{ fill: '#666', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#666', fontSize: 12 }} axisLine={false} tickLine={false} />
               <Tooltip {...TOOLTIP_STYLE} />
               <Bar dataKey="completed" fill="#febfca" radius={[8, 8, 0, 0]} />
             </BarChart>
@@ -146,7 +114,6 @@ export default function WeeklyHabitSummary() {
         </div>
       )}
 
-      {/* Habits List */}
       <div className={styles.habitsSection}>
         <h3 className={styles.habitsTitle}>Habit Tracking</h3>
         {habits.length === 0 ? (
@@ -154,58 +121,7 @@ export default function WeeklyHabitSummary() {
         ) : (
           <div className={styles.habitsList}>
             {habits.map((habit) => (
-              <div key={habit.id} className={styles.habitCard}>
-                <div
-                  className={styles.habitHeader}
-                  onClick={() => setExpandedHabit(expandedHabit === habit.id ? null : habit.id)}
-                >
-                  <div className={styles.habitInfo}>
-                    <div
-                      className={styles.categoryBadge}
-                      style={{ backgroundColor: habit.categoryColor }}
-                    >
-                      {habit.category.substring(0, 1)}
-                    </div>
-                    <div className={styles.habitMeta}>
-                      <div className={styles.habitTitle}>{habit.title}</div>
-                      <div className={styles.habitCategory}>{habit.category}</div>
-                    </div>
-                  </div>
-                  <div className={styles.habitStats}>
-                    <div className={styles.completionBadge} style={{ color: getProgressColor(habit.completionRate) }}>
-                      {habit.completionRate}%
-                    </div>
-                    <div className={styles.expandIcon}>
-                      {expandedHabit === habit.id ? '▼' : '▶'}
-                    </div>
-                  </div>
-                </div>
-
-                {expandedHabit === habit.id && (
-                  <div className={styles.habitDetails}>
-                    <div className={styles.weekGrid}>
-                      {habit.weekActivity.map((activity, idx) => (
-                        <div key={activity.date} className={styles.dayCell}>
-                          <div className={styles.dayLabel}>{weeklyStats.weekLabels[idx]}</div>
-                          <div
-                            className={`${styles.dayStatus} ${activity.completed ? styles.completed : styles.missed}`}
-                            title={activity.completed ? 'Completed' : 'Missed'}
-                          >
-                            {activity.completed ? '✓' : '✗'}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className={styles.habitSummary}>
-                      <span>{habit.completedDays} completed</span>
-                      <span className={styles.separator}>•</span>
-                      <span>{habit.missedDays} missed</span>
-                      <span className={styles.separator}>•</span>
-                      <span>{habit.totalLogged} logged</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <HabitCard key={habit.id} habit={habit} weekLabels={weeklyStats.weekLabels} getProgressColor={getProgressColor} />
             ))}
           </div>
         )}
@@ -213,3 +129,56 @@ export default function WeeklyHabitSummary() {
     </div>
   );
 }
+
+function HabitCard({ habit, weekLabels, getProgressColor }) {
+  // Use local state for the expand/collapse UI — no effect on data
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className={styles.habitCard}>
+      <div className={styles.habitHeader} onClick={() => setExpanded(!expanded)}>
+        <div className={styles.habitInfo}>
+          <div className={styles.categoryBadge} style={{ backgroundColor: habit.categoryColor }}>
+            {habit.category.substring(0, 1)}
+          </div>
+          <div className={styles.habitMeta}>
+            <div className={styles.habitTitle}>{habit.title}</div>
+            <div className={styles.habitCategory}>{habit.category}</div>
+          </div>
+        </div>
+        <div className={styles.habitStats}>
+          <div className={styles.completionBadge} style={{ color: getProgressColor(habit.completionRate) }}>
+            {habit.completionRate}%
+          </div>
+          <div className={styles.expandIcon}>{expanded ? '▼' : '▶'}</div>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className={styles.habitDetails}>
+          <div className={styles.weekGrid}>
+            {habit.weekActivity.map((activity, idx) => (
+              <div key={activity.date} className={styles.dayCell}>
+                <div className={styles.dayLabel}>{weekLabels[idx]}</div>
+                <div
+                  className={`${styles.dayStatus} ${activity.completed ? styles.completed : styles.missed}`}
+                  title={activity.completed ? 'Completed' : 'Missed'}
+                >
+                  {activity.completed ? '✓' : '✗'}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className={styles.habitSummary}>
+            <span>{habit.completedDays} completed</span>
+            <span className={styles.separator}>•</span>
+            <span>{habit.missedDays} missed</span>
+            <span className={styles.separator}>•</span>
+            <span>{habit.totalLogged} logged</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+

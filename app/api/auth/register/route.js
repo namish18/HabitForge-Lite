@@ -8,10 +8,8 @@ import {
   findUserByUsername,
 } from '@/lib/users';
 
-import { writeFile } from '@/lib/github';
-
 const PASSWORD_MIN_LENGTH = 8;
-const PASSWORD_REGEX = /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/;
+const PASSWORD_REGEX = /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?])/;
 
 export async function POST(request) {
   try {
@@ -62,59 +60,31 @@ export async function POST(request) {
     }
 
     const userId = uuidv4();
-
     const passwordHash = await argon2.hash(password);
 
     const registry = await getRegistry();
-
     registry.push({
       userId,
       username,
       passwordHash,
       createdAt: Date.now(),
     });
-
     await saveRegistry(registry);
 
-    // Create starter files
-    await writeFile(
-      `data/users/${userId}/tasks.json`,
-      [],
-      'Initialize tasks'
-    );
+    // NOTE: No initial data files are written here.
+    // The server cannot write encrypted files because it has no access to the
+    // user's encryption key (which is derived browser-side from the password).
+    // Data files are created lazily the first time the user writes data after
+    // logging in.  GET routes return null for missing files, which the browser
+    // treats as an empty collection.
 
-    await writeFile(
-      `data/users/${userId}/categories.json`,
-      [],
-      'Initialize categories'
-    );
-
-    await writeFile(
-      `data/users/${userId}/subcategories.json`,
-      [],
-      'Initialize subcategories'
-    );
-
-    await writeFile(
-      `data/users/${userId}/profile.json`,
-      {
-        userId,
-        username,
-      },
-      'Initialize profile'
-    );
-
-    return NextResponse.json({
-      success: true,
-      userId,
-    });
+    return NextResponse.json({ success: true, userId });
 
   } catch (error) {
-    console.error(error);
-
+    console.error('Registration error:', error.message);
     return NextResponse.json(
       { error: 'Registration failed' },
       { status: 500 }
     );
   }
-}
+}

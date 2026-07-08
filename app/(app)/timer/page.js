@@ -1,10 +1,18 @@
 'use client';
 import { useEffect, useState, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { v4 as uuidv4 } from 'uuid';
 import { useAppStore } from '@/store/appStore';
 import { format } from 'date-fns';
 import styles from './timer.module.css';
+import {
+  encryptWithSession,
+  decryptWithSession,
+  isEncryptedPayload,
+  hasSessionPassword,
+} from '@/lib/crypto';
 
 function formatTime(seconds) {
   const h = Math.floor(seconds / 3600);
@@ -15,6 +23,7 @@ function formatTime(seconds) {
 }
 
 function TimerContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedTaskId = searchParams.get('taskId');
 
@@ -26,12 +35,21 @@ function TimerContent() {
   const [notes, setNotes] = useState('');
   const [completed, setCompleted] = useState(false);
   const [saving, setSaving] = useState(false);
+  // sessions holds the DECRYPTED log array for today, used to display and to
+  // build the updated collection before re-encrypting on save.
   const [sessions, setSessions] = useState([]);
 
   useEffect(() => {
-    fetch('/api/tasks').then((r) => r.json()).then((t) => setTasks(Array.isArray(t) ? t : []));
-    fetch('/api/categories').then((r) => r.json()).then((c) => setCategories(Array.isArray(c) ? c : []));
-    fetch('/api/subcategories').then((r) => r.json()).then((s) => setSubcategories(Array.isArray(s) ? s : []));
+    if (!hasSessionPassword()) { router.push('/login'); return; }
+    Promise.all([
+      fetch('/api/tasks').then((r) => r.json()),
+      fetch('/api/categories').then((r) => r.json()),
+      fetch('/api/subcategories').then((r) => r.json()),
+    ]).then(async ([tP, cP, sP]) => {
+      setTasks(await safeDecrypt(tP, []));
+      setCategories(await safeDecrypt(cP, []));
+      setSubcategories(await safeDecrypt(sP, []));
+    }).catch(() => {});
     loadTodaySessions();
   }, []);
 
@@ -39,12 +57,17 @@ function TimerContent() {
     if (preselectedTaskId) setSelectedTaskId(preselectedTaskId);
   }, [preselectedTaskId]);
 
+  async function safeDecrypt(payload, fallback) {
+    if (payload === null || payload === undefined) return fallback;
+    if (!isEncryptedPayload(payload)) return fallback;
+    return decryptWithSession(payload);
+  }
+
   async function loadTodaySessions() {
     const today = format(new Date(), 'yyyy-MM-dd');
     try {
-      const res = await fetch(`/api/logs?date=${today}`);
-      const data = await res.json();
-      setSessions(Array.isArray(data) ? data : []);
+      const payload = await fetch(`/api/logs?date=${today}`).then((r) => r.json());
+      setSessions(await safeDecrypt(payload, []));
     } catch {}
   }
 
@@ -66,17 +89,25 @@ function TimerContent() {
     setSaving(true);
     try {
       const today = format(new Date(), 'yyyy-MM-dd');
-      await fetch('/api/logs', {
+      const newEntry = {
+        id: uuidv4(),
+        taskId: timer.taskId,
+        date: today,
+        minutesSpent: minutes,
+        completed,
+        notes,
+      };
+      // Append to the already-decrypted sessions list (no extra network round-trip)
+      const updated = [...sessions, newEntry];
+      const encryptedPayload = await encryptWithSession(updated);
+
+      const res = await fetch('/api/logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          taskId: timer.taskId,
-          date: today,
-          minutesSpent: minutes,
-          completed,
-          notes,
-        }),
+        body: JSON.stringify({ date: today, encryptedPayload }),
       });
+      if (!res.ok) throw new Error('Save failed');
+
       toast.success(`Session saved: ${minutes} minutes`);
       setNotes('');
       setCompleted(false);
@@ -116,7 +147,6 @@ function TimerContent() {
       </div>
 
       <div className={styles.layout}>
-        {/* Timer Display */}
         <div className={`card ${styles.timerCard}`}>
           <div className={styles.circleWrap}>
             <svg className={styles.circle} viewBox="0 0 240 240">
@@ -144,16 +174,10 @@ function TimerContent() {
             </div>
           </div>
 
-          {/* Task Select */}
           {!timer.isRunning && !timer.isPaused && (
             <div className={styles.taskSelect}>
               <label className="form-label">Select Task</label>
-              <select
-                className="form-select"
-                value={selectedTaskId}
-                onChange={(e) => setSelectedTaskId(e.target.value)}
-                id="timer-task-select"
-              >
+              <select className="form-select" value={selectedTaskId} onChange={(e) => setSelectedTaskId(e.target.value)} id="timer-task-select">
                 <option value="">Choose a task...</option>
                 {tasks.map((t) => (
                   <option key={t.id} value={t.id}>{getTaskDisplay(t)}</option>
@@ -169,12 +193,9 @@ function TimerContent() {
             </div>
           )}
 
-          {/* Controls */}
           <div className={styles.controls}>
             {!timer.isRunning && !timer.isPaused && (
-              <button className={`btn btn-primary btn-lg ${styles.startBtn}`} onClick={handleStart} id="timer-start-btn">
-                ▶ Start Focus
-              </button>
+              <button className={`btn btn-primary btn-lg ${styles.startBtn}`} onClick={handleStart} id="timer-start-btn">▶ Start Focus</button>
             )}
             {timer.isRunning && (
               <>
@@ -197,33 +218,20 @@ function TimerContent() {
             )}
           </div>
 
-          {/* Session Notes */}
           {(timer.isRunning || timer.isPaused) && (
             <div className={styles.sessionMeta}>
               <div className="form-group">
                 <label className="form-label">Session Notes</label>
-                <textarea
-                  className="form-textarea"
-                  placeholder="What did you accomplish?"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
-                />
+                <textarea className="form-textarea" placeholder="What did you accomplish?" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
               </div>
               <label className={styles.completedCheck}>
-                <input
-                  type="checkbox"
-                  checked={completed}
-                  onChange={(e) => setCompleted(e.target.checked)}
-                  id="mark-completed"
-                />
+                <input type="checkbox" checked={completed} onChange={(e) => setCompleted(e.target.checked)} id="mark-completed" />
                 <span>Mark task as completed for today</span>
               </label>
             </div>
           )}
         </div>
 
-        {/* Today's Sessions */}
         <div className={styles.sessionsPanel}>
           <h3 className="section-title">Today's Sessions</h3>
           {sessions.length === 0 ? (
