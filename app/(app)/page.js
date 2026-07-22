@@ -6,6 +6,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import WeeklyHabitSummary from '@/components/WeeklyHabitSummary/WeeklyHabitSummary';
+import { format } from 'date-fns';
 import {
   calculateWeeklyData,
   calculateWeeklyScore,
@@ -59,7 +60,7 @@ export default function DashboardPage() {
       const wk     = calculateWeeklyData(allLogs, tasks);
       const score  = calculateWeeklyScore(allLogs);
       const streak = calculateStreak(allLogs);
-      const today  = new Date().toISOString().split('T')[0];
+      const today  = format(new Date(), 'yyyy-MM-dd');
       const todayLogs = allLogs[today] || [];
       const todayMinutes  = todayLogs.reduce((s, l) => s + (l.minutesSpent || 0), 0);
       const todayCompleted = todayLogs.filter((l) => l.completed).length;
