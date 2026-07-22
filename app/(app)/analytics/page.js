@@ -21,6 +21,7 @@ import {
   hasSessionPassword,
 } from '@/lib/crypto';
 import styles from './analytics.module.css';
+import { format } from 'date-fns';
 
 const TOOLTIP_STYLE = {
   contentStyle: {
@@ -76,7 +77,7 @@ export default function AnalyticsPage() {
       const pr    = getPriorityDistribution(tasks);
       const score = calculateWeeklyScore(allLogs);
       const streak = calculateStreak(allLogs);
-      const today = new Date().toISOString().split('T')[0];
+      const today = format(new Date(), 'yyyy-MM-dd');
       const todayLogs = allLogs[today] || [];
       const todayMinutes = todayLogs.reduce((s, l) => s + (l.minutesSpent || 0), 0);
       const todayCompleted = todayLogs.filter((l) => l.completed).length;
