@@ -1,13 +1,22 @@
 'use client';
 import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './tasks.module.css';
+import {
+  encryptWithSession,
+  decryptWithSession,
+  isEncryptedPayload,
+  hasSessionPassword,
+} from '@/lib/crypto';
 
 const PRIORITIES = ['low', 'medium', 'high'];
 const PRIORITY_LABELS = { low: '🟢 Low', medium: '🟡 Medium', high: '🔴 High' };
 
 export default function TasksPage() {
+  const router = useRouter();
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
@@ -23,21 +32,34 @@ export default function TasksPage() {
     title: '', description: '', subcategoryId: '', targetMinutes: 60, priority: 'medium',
   });
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    if (!hasSessionPassword()) { router.push('/login'); return; }
+    loadData();
+  }, []);
+
+  async function safeDecrypt(payload, fallback) {
+    if (payload === null || payload === undefined) return fallback;
+    if (!isEncryptedPayload(payload)) return fallback;
+    return decryptWithSession(payload);
+  }
 
   async function loadData() {
     setLoading(true);
     try {
-      const [t, c, s] = await Promise.all([
+      const [tPayload, cPayload, sPayload] = await Promise.all([
         fetch('/api/tasks').then((r) => r.json()),
         fetch('/api/categories').then((r) => r.json()),
         fetch('/api/subcategories').then((r) => r.json()),
       ]);
-      setTasks(Array.isArray(t) ? t : []);
-      setCategories(Array.isArray(c) ? c : []);
-      setSubcategories(Array.isArray(s) ? s : []);
-    } catch { toast.error('Failed to load tasks'); }
-    finally { setLoading(false); }
+      setTasks(await safeDecrypt(tPayload, []));
+      setCategories(await safeDecrypt(cPayload, []));
+      setSubcategories(await safeDecrypt(sPayload, []));
+    } catch (e) {
+      if (e.message?.includes('No active session')) { router.push('/login'); return; }
+      toast.error('Failed to load tasks');
+    } finally {
+      setLoading(false);
+    }
   }
 
   const filteredTasks = useMemo(() => {
@@ -46,10 +68,7 @@ export default function TasksPage() {
     if (filterPriority !== 'all') result = result.filter((t) => t.priority === filterPriority);
     if (filterSub !== 'all') result = result.filter((t) => t.subcategoryId === filterSub);
     result.sort((a, b) => {
-      if (sortBy === 'priority') {
-        const order = { high: 0, medium: 1, low: 2 };
-        return order[a.priority] - order[b.priority];
-      }
+      if (sortBy === 'priority') { const o = { high: 0, medium: 1, low: 2 }; return o[a.priority] - o[b.priority]; }
       if (sortBy === 'title') return a.title.localeCompare(b.title);
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
@@ -73,19 +92,46 @@ export default function TasksPage() {
     if (!form.subcategoryId) return toast.error('Select a subcategory');
     setSaving(true);
     try {
+      let updated;
+      if (editing) {
+        updated = tasks.map((t) =>
+          t.id === editing.id
+            ? { ...t, ...form, title: form.title.trim(), targetMinutes: parseInt(form.targetMinutes) || 60 }
+            : t
+        );
+      } else {
+        const newTask = {
+          id: uuidv4(),
+          subcategoryId: form.subcategoryId,
+          title: form.title.trim(),
+          description: form.description?.trim() || '',
+          targetMinutes: parseInt(form.targetMinutes) || 60,
+          priority: ['low', 'medium', 'high'].includes(form.priority) ? form.priority : 'medium',
+          createdAt: new Date().toISOString(),
+        };
+        updated = [...tasks, newTask];
+      }
+
+      const encryptedPayload = await encryptWithSession(updated);
+
       if (editing) {
         const res = await fetch(`/api/tasks/${editing.id}`, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ encryptedPayload }),
         });
         if (!res.ok) throw new Error();
         toast.success('Task updated');
       } else {
         const res = await fetch('/api/tasks', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ encryptedPayload }),
         });
         if (!res.ok) throw new Error();
         toast.success('Task created');
       }
+
       setShowModal(false);
       await loadData();
     } catch { toast.error('Failed to save task'); }
@@ -95,9 +141,15 @@ export default function TasksPage() {
   async function handleDelete(id) {
     if (!confirm('Delete this task?')) return;
     try {
-      await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+      const filtered = tasks.filter((t) => t.id !== id);
+      const encryptedPayload = await encryptWithSession(filtered);
+      await fetch(`/api/tasks/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ encryptedPayload }),
+      });
       toast.success('Task deleted');
-      setTasks((prev) => prev.filter((t) => t.id !== id));
+      setTasks(filtered);
     } catch { toast.error('Failed to delete'); }
   }
 
@@ -119,7 +171,6 @@ export default function TasksPage() {
         <button className="btn btn-primary" onClick={openCreate} id="create-task-btn">+ New Task</button>
       </div>
 
-      {/* Filters */}
       <div className={styles.filters}>
         <div className={styles.searchWrap}>
           <span className={styles.searchIcon}>🔍</span>
@@ -145,9 +196,7 @@ export default function TasksPage() {
           <div className="empty-state-icon">✅</div>
           <p className="empty-state-title">{tasks.length === 0 ? 'No tasks yet' : 'No tasks match filters'}</p>
           <p className="empty-state-description">
-            {tasks.length === 0
-              ? 'Create your first task to start tracking your progress.'
-              : 'Try adjusting your search or filters.'}
+            {tasks.length === 0 ? 'Create your first task to start tracking your progress.' : 'Try adjusting your search or filters.'}
           </p>
           {tasks.length === 0 && subcategories.length === 0 && (
             <Link href="/categories" className="btn btn-secondary" style={{ marginTop: 16 }}>
@@ -192,7 +241,6 @@ export default function TasksPage() {
         </div>
       )}
 
-      {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowModal(false)}>
           <div className="modal" style={{ maxWidth: 560 }}>

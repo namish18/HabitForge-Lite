@@ -28,13 +28,26 @@ export default function Navbar() {
   const [dateStr, setDateStr] = useState('');
 
   useEffect(() => {
-    setDateStr(
-      new Date().toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-      })
-    );
+    let timeoutId;
+
+    function updateDate() {
+      const now = new Date();
+      setDateStr(
+        now.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+        })
+      );
+      
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const msUntilMidnight = tomorrow - now;
+      timeoutId = setTimeout(updateDate, msUntilMidnight);
+    }
+
+    updateDate();
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (

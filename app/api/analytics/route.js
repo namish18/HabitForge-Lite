@@ -1,16 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { getCategories, getSubcategories, getTasks, getAllLogs } from '@/lib/storage';
-import {
-  calculateWeeklyData,
-  calculateMonthlyData,
-  calculateCategoryBreakdown,
-  calculateStreak,
-  calculateHeatmapData,
-  calculateWeeklyScore,
-  getPriorityDistribution,
-} from '@/lib/analytics';
-import { format } from 'date-fns';
+import { getCategories, getSubcategories, getTasks, getDailyLog, getLogDates } from '@/lib/storage';
 
 async function authenticate() {
   const session = await getSession();
@@ -18,14 +8,50 @@ async function authenticate() {
   return session;
 }
 
-export async function GET() {
+/**
+ * GET /api/analytics
+ * Returns all raw encrypted payloads so the browser can decrypt and compute
+ * analytics client-side.  The server cannot compute analytics because it
+ * cannot decrypt the data.
+ *
+ * Response:
+ * {
+ *   categories:    EncryptedPayload | null,
+ *   subcategories: EncryptedPayload | null,
+ *   tasks:         EncryptedPayload | null,
+ *   logs: {
+ *     [date]: EncryptedPayload | null,
+ *     ...
+ *   }
+ * }
+ */
+export async function GET(request) {
   try {
     const session = await authenticate();
 
-    const categories = await getCategories(session.userId);
+    // Fetch the list of log dates, then fetch each encrypted log blob in parallel
+    const [categoriesPayload, subcategoriesPayload, tasksPayload, logDates] = await Promise.all([
+      getCategories(session.userId),
+      getSubcategories(session.userId),
+      getTasks(session.userId),
+      getLogDates(session.userId, 90),
+    ]);
 
-    return NextResponse.json(categories);
+    const logEntries = await Promise.all(
+      logDates.map(async (date) => {
+        const payload = await getDailyLog(date, session.userId);
+        return [date, payload];
+      })
+    );
 
+    const logs = Object.fromEntries(logEntries);
+
+    return NextResponse.json({
+      categories:    categoriesPayload,
+      subcategories: subcategoriesPayload,
+      tasks:         tasksPayload,
+      logs,
+    });
   } catch (error) {
     return NextResponse.json(
       {

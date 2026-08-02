@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getTasks, saveTasks } from '@/lib/storage';
-import { v4 as uuidv4 } from 'uuid';
 
 async function authenticate() {
   const session = await getSession();
@@ -9,41 +8,48 @@ async function authenticate() {
   return session;
 }
 
+function validatePayload(payload) {
+  return (
+    payload &&
+    payload.version === 1 &&
+    payload.algorithm === 'AES-256-GCM' &&
+    typeof payload.salt === 'string' &&
+    typeof payload.iv === 'string' &&
+    typeof payload.ciphertext === 'string'
+  );
+}
+
+/**
+ * GET /api/tasks
+ * Returns the encrypted payload from GitHub.
+ * The browser decrypts it — the server never sees plaintext.
+ */
 export async function GET() {
   try {
     const session = await authenticate();
-    const tasks = await getTasks(session.userId);
-    return NextResponse.json(tasks);
+    const payload = await getTasks(session.userId);
+    return NextResponse.json(payload);
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
+/**
+ * POST /api/tasks
+ * Accepts a pre-encrypted full tasks payload from the browser.
+ */
 export async function POST(request) {
   try {
     const session = await authenticate();
-    const body = await request.json();
-    const { subcategoryId, title, description, targetMinutes, priority } = body;
+    const { encryptedPayload } = await request.json();
 
-    if (!title?.trim() || !subcategoryId) {
-      return NextResponse.json({ error: 'Title and subcategoryId are required' }, { status: 400 });
+    if (!validatePayload(encryptedPayload)) {
+      return NextResponse.json({ error: 'Invalid encrypted payload' }, { status: 400 });
     }
 
-    const tasks = await getTasks(session.userId);
-    const newTask = {
-      id: uuidv4(),
-      subcategoryId,
-      title: title.trim(),
-      description: description?.trim() || '',
-      targetMinutes: parseInt(targetMinutes) || 60,
-      priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'medium',
-      createdAt: new Date().toISOString(),
-    };
-
-    tasks.push(newTask);
-    await saveTasks(tasks, session.userId);
-    return NextResponse.json(newTask, { status: 201 });
+    await saveTasks(encryptedPayload, session.userId);
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     return NextResponse.json({ error: error.message }, { status: 500 });

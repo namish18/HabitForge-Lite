@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import styles from './login.module.css';
+import { setSessionPassword } from '@/lib/crypto';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,6 +24,10 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (res.ok) {
+        // Derive the session encryption key in the browser from the raw password
+        // before React discards it on navigation.  The key is held only in
+        // module-level memory — never written to any persistent storage.
+        setSessionPassword(password);
         toast.success('Welcome back!');
         router.push('/');
         router.refresh();
