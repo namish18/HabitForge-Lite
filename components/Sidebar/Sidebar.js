@@ -11,6 +11,7 @@ import {
 	Timer,
 	ClipboardList,
 	BarChart3,
+	Download,
 	LogOut,
 } from 'lucide-react';
 import { useAppStore } from '@/store/appStore';
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
 	{ href: '/timer', icon: Timer, label: 'Timer', id: 'nav-timer' },
 	{ href: '/logs', icon: ClipboardList, label: 'Daily Logs', id: 'nav-logs' },
 	{ href: '/analytics', icon: BarChart3, label: 'Analytics', id: 'nav-analytics' },
+	{href: '/backup',icon: Download,label: 'Backup',id: 'nav-backup',},
 ];
 
 export default function Sidebar() {

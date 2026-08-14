@@ -53,7 +53,12 @@ export async function GET(request) {
       logs,
     });
   } catch (error) {
-    if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: error.message,
+        status: error.status
+      },
+      { status: 500 }
+    );
   }
 }
