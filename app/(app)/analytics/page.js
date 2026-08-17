@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { format } from 'date-fns';
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid,
@@ -76,7 +77,7 @@ export default function AnalyticsPage() {
       const pr    = getPriorityDistribution(tasks);
       const score = calculateWeeklyScore(allLogs);
       const streak = calculateStreak(allLogs);
-      const today = new Date().toISOString().split('T')[0];
+      const today = format(new Date(), 'yyyy-MM-dd');
       const todayLogs = allLogs[today] || [];
       const todayMinutes = todayLogs.reduce((s, l) => s + (l.minutesSpent || 0), 0);
       const todayCompleted = todayLogs.filter((l) => l.completed).length;
