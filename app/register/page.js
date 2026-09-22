@@ -13,14 +13,15 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const passwordValid = /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password) && password.length >= 8;
-  const usernameValid = /^[a-zA-Z0-9]+$/.test(username) && username.length >= 3;
+  // Username: 3+ chars, no spaces/whitespace allowed, special chars OK
+  const usernameValid = /^\S+$/.test(username) && username.length >= 3;
   const passwordsMatch = password === confirmPassword && password.length > 0;
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     if (!usernameValid) {
-      toast.error('Username must be 3+ characters, alphanumeric only');
+      toast.error('Username must be 3+ characters with no spaces');
       return;
     }
 
@@ -79,13 +80,13 @@ export default function RegisterPage() {
               className="form-input"
               placeholder="Choose a username (3+ characters)"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
               autoFocus
               autoComplete="username"
             />
             {username && !usernameValid && (
               <p style={{ fontSize: '0.875rem', color: '#ef4444', marginTop: '0.25rem' }}>
-                Username must be 3+ chars, alphanumeric only
+                Username must be 3+ chars, no spaces allowed
               </p>
             )}
           </div>

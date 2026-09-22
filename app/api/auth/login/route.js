@@ -16,10 +16,11 @@ export async function POST(request) {
       );
     }
 
+    const cleanUsername = username.replace(/\s/g, '');
     const registry = await getRegistry();
 
     const user = registry.find(
-      (u) => u.username === username
+      (u) => u.username === cleanUsername
     );
 
     if (!user) {

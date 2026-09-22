@@ -22,16 +22,19 @@ export async function POST(request) {
       );
     }
 
-    if (username.length < 3) {
+    // Strip any whitespace that may have slipped through the client
+    const cleanUsername = username.replace(/\s/g, '');
+
+    if (cleanUsername.length < 3) {
       return NextResponse.json(
         { error: 'Username must be at least 3 characters' },
         { status: 400 }
       );
     }
 
-    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+    if (/\s/.test(cleanUsername)) {
       return NextResponse.json(
-        { error: 'Username must contain only alphanumeric characters' },
+        { error: 'Username must not contain spaces' },
         { status: 400 }
       );
     }
@@ -50,7 +53,7 @@ export async function POST(request) {
       );
     }
 
-    const exists = await findUserByUsername(username);
+    const exists = await findUserByUsername(cleanUsername);
 
     if (exists) {
       return NextResponse.json(
@@ -65,7 +68,7 @@ export async function POST(request) {
     const registry = await getRegistry();
     registry.push({
       userId,
-      username,
+      username: cleanUsername,
       passwordHash,
       createdAt: Date.now(),
     });
