@@ -30,7 +30,6 @@ export default function LoginPage() {
         setSessionPassword(password);
         toast.success('Welcome back!');
         router.push('/');
-        router.refresh();
       } else {
         toast.error(data.error || 'Login failed');
       }
