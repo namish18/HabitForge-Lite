@@ -30,16 +30,7 @@ export async function proxy(request) {
   }
 
   const session = await verifyToken(token);
-  if (!session?.userId) {
-    if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    response.cookies.delete('habitforge_session');
-    return response;
-  }
-
-  if (!session) {
+  if (!session || !session.userId) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
