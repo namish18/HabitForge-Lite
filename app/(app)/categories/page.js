@@ -34,7 +34,7 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     if (!hasSessionPassword()) {
-      router.push('/login');
+      router.replace('/login');
       return;
     }
     loadData();
@@ -56,7 +56,7 @@ export default function CategoriesPage() {
       setTasks(await safeDecrypt(taskPayload, []));
     } catch (e) {
       if (e.message && e.message.includes('No active session')) {
-        router.push('/login');
+        router.replace('/login');
       } else {
         toast.error('Failed to load data');
       }

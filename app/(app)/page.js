@@ -27,7 +27,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!hasSessionPassword()) { router.push('/login'); return; }
+    if (!hasSessionPassword()) { router.replace('/login'); return; }
     load();
   }, []);
 
@@ -80,7 +80,7 @@ export default function DashboardPage() {
       // Pre-compute habit summary so WeeklyHabitSummary doesn't need its own fetch
       setHabitData(calculateWeeklyHabitConsistency(allLogs, tasks, subs, cats));
     } catch (e) {
-      if (e.message?.includes('No active session')) { router.push('/login'); return; }
+      if (e.message?.includes('No active session')) { router.replace('/login'); return; }
     } finally {
       setLoading(false);
     }

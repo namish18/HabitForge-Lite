@@ -41,7 +41,7 @@ export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    if (!hasSessionPassword()) { router.push('/login'); return; }
+    if (!hasSessionPassword()) { router.replace('/login'); return; }
     load();
   }, []);
 
@@ -88,7 +88,7 @@ export default function AnalyticsPage() {
       setHeatmap(hm);
       setPriority(pr);
     } catch (e) {
-      if (e.message?.includes('No active session')) { router.push('/login'); return; }
+      if (e.message?.includes('No active session')) { router.replace('/login'); return; }
       console.error('Analytics error'); // intentionally no plaintext in error log
     } finally {
       setLoading(false);

@@ -40,7 +40,7 @@ function TimerContent() {
   const [sessions, setSessions] = useState([]);
 
   useEffect(() => {
-    if (!hasSessionPassword()) { router.push('/login'); return; }
+    if (!hasSessionPassword()) { router.replace('/login'); return; }
     Promise.all([
       fetch('/api/tasks').then((r) => r.json()),
       fetch('/api/categories').then((r) => r.json()),

@@ -26,7 +26,7 @@ export default function LogsPage() {
   const [form, setForm] = useState({ taskId: '', minutesSpent: 30, completed: false, notes: '' });
 
   useEffect(() => {
-    if (!hasSessionPassword()) { router.push('/login'); return; }
+    if (!hasSessionPassword()) { router.replace('/login'); return; }
     // Load reference data once
     Promise.all([
       fetch('/api/tasks').then((r) => r.json()),

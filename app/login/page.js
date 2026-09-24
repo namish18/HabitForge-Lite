@@ -29,7 +29,7 @@ export default function LoginPage() {
         // module-level memory — never written to any persistent storage.
         setSessionPassword(password);
         toast.success('Welcome back!');
-        router.push('/');
+        router.replace('/');
       } else {
         toast.error(data.error || 'Login failed');
       }

@@ -45,7 +45,7 @@ export default function RegisterPage() {
       const data = await res.json();
       if (res.ok) {
         toast.success('Account created! Please log in.');
-        router.push('/login');
+        router.replace('/login');
       } else {
         toast.error(data.error || 'Registration failed');
       }

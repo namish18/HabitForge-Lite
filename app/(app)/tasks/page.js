@@ -33,7 +33,7 @@ export default function TasksPage() {
   });
 
   useEffect(() => {
-    if (!hasSessionPassword()) { router.push('/login'); return; }
+    if (!hasSessionPassword()) { router.replace('/login'); return; }
     loadData();
   }, []);
 
@@ -55,7 +55,7 @@ export default function TasksPage() {
       setCategories(await safeDecrypt(cPayload, []));
       setSubcategories(await safeDecrypt(sPayload, []));
     } catch (e) {
-      if (e.message?.includes('No active session')) { router.push('/login'); return; }
+      if (e.message?.includes('No active session')) { router.replace('/login'); return; }
       toast.error('Failed to load tasks');
     } finally {
       setLoading(false);
