@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#161213;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary": "#ddbfc5", "inverse-primary": "#b51f44", "primary-fixed-dim": "#ffb2b9", "on-surface-variant": "#e1bec0", "on-tertiary": "#3f2b30", "secondary": "#d1c5b3", "on-tertiary-fixed": "#28171b", "on-primary-container": "#5b001a", "inverse-surface": "#eae0e1", "surface-overlay": "#262023", "tertiary-fixed": "#fbdbe1", "tertiary-container": "#a58a90", "surface-container": "#231e1f", "outline": "#a8898b", "surface": "#161213", "secondary-container": "#4d4638", "primary": "#ffb2b9", "surface-container-low": "#1f1a1b", "surface-tint": "#ffb2b9", "on-background": "#eae0e1", "secondary-fixed": "#ede1ce", "on-error-container": "#ffdad6", "on-primary-fixed": "#400010", "error": "#ffb4ab", "surface-container-lowest": "#110d0e", "text-muted": "#A89B9D", "border-active": "rgba(247, 82, 112, 0.4)", "error-container": "#93000a", "primary-container": "#fb5573", "background": "#161213", "on-tertiary-fixed-variant": "#574146", "on-tertiary-container": "#38242a", "tertiary-fixed-dim": "#ddbfc5", "on-secondary-fixed": "#211b0f", "secondary-fixed-dim": "#d1c5b3", "on-primary": "#67001f", "surface-elevated": "#1E1A1C", "surface-container-highest": "#383335", "surface-bright": "#3d3839", "surface-container-high": "#2d292a", "surface-variant": "#383335", "on-secondary-container": "#bfb4a2", "border-subtle": "rgba(255, 242, 223, 0.08)", "on-secondary": "#363023", "outline-variant": "#594042", "surface-base": "#131112", "on-error": "#690005", "primary-fixed": "#ffdadc", "accent-mauve": "#8B5E63", "on-surface": "#eae0e1", "on-secondary-fixed-variant": "#4d4638", "inverse-on-surface": "#342f30", "surface-dim": "#161213", "on-primary-fixed-variant": "#91002f" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "1rem", "space-xl": "2rem", "margin-tablet": "2rem", "space-xs": "0.25rem", "space-md": "1rem", "margin-desktop": "3rem", "gutter": "1rem", "gutter-desktop": "1.5rem", "space-lg": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "headline-lg": ["Plus Jakarta Sans"], "body-sm": ["Hanken Grotesk"], "label-sm": ["JetBrains Mono"], "body-md": ["Hanken Grotesk"], "headline-md": ["Plus Jakarta Sans"], "metric-lg": ["JetBrains Mono"], "metric-md": ["JetBrains Mono"], "display-lg-mobile": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "body-lg": ["Hanken Grotesk"], "label-md": ["JetBrains Mono"], "display-lg": ["Plus Jakarta Sans"] }, "fontSize": { "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "metric-lg": ["32px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "metric-md": ["20px", { "lineHeight": "26px", "fontWeight": "500" }], "display-lg-mobile": ["32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }], "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.25)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><img alt="HabitForge Lite geometric forge anvil / flame productivity icon in bright coral and warm cream on dark rounded square container. Brand logo. - Primary color: #f75270
+- Font: plusJakartaSans
+- Mode: dark
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1V4fpAGu95K1e1kvtpXPlA7WIopevF5SVvMQhot-CCgLQQkX1nM-w4bA9rQh5JdIwVAlHxsvwZpPVe9tEEdDnwn5tIFHo_6_hXXG6oAIjJ6zUbsHC_sVEYZuHhoiRoSiYdfj_YL6NNF0Bod4PnkTtyUuwVoOen4PSLe76w3AiAYy1-KM3_njfamavVEMXossqhLL2yn-SIpbol_j_MxIzYM5UQ8xOb55P8i6oQ9xXnK0Qw3OzeZ8ePSva8"/><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-on-surface truncate tracking-tight">Focus</span><div class="flex items-center gap-1 text-text-muted font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-primary-container inline-block animate-pulse"></span><span class="truncate">Synced</span></div></div></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="Search habits" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">search</span></button><button aria-label="Open Profile Settings" class="w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-95" type="button"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-border-subtle" src="https://lh3.googleusercontent.com/aida/AEtjO1V--k-zxsDAbB-lL_rEwcF_LwyB66i5MHuZhUjpbCwHDRlNm5dS_edq04ucgsw3XMYxsxq45W3elTYileuxRdkgfoDeoYryh9nCP0RCaz6890DjbLN5s-ggTSQ-9yeXbV3Yc6CRtJk4jYDW-ydq6PJdoFe9fDFz7doLvFj9Sb-F1teZICKPJjjtRP1XfJr9rhso0IumhIdK8V5s7d7Qh-AA3wt5qceoVxdn32g4WN4U6Y_7kf1mZlmcmno"/></button></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-20 bg-surface"><div class="flex flex-col w-full px-margin pb-space-xl gap-space-lg">
+<!-- 1. Focus Session Header & Ambient Control -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span>Flow State Protocol • Target: 4h 00m</span>
+</div>
+<div class="flex items-center gap-1 text-text-muted">
+<span class="material-symbols-outlined text-[18px] text-primary" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-sm text-label-sm text-secondary-fixed">Day 14 Streak</span>
+</div>
+</div>
+<!-- Audio / Atmosphere Soundscape Selector -->
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+<button class="group flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm shrink-0 shadow-sm transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[16px] animate-pulse">graphic_eq</span>
+<span>Binaural 40Hz</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm shrink-0 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-text-muted">rainy</span>
+<span>Kyoto Rain</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm shrink-0 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-text-muted">air</span>
+<span>White Noise</span>
+</button>
+<button class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container text-text-muted hover:text-on-surface font-label-sm text-label-sm shrink-0 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">volume_off</span>
+<span>Mute</span>
+</button>
+</div>
+</section>
+<!-- 2. Central Focus Timer Card -->
+<section class="relative flex flex-col items-center bg-surface-elevated rounded-xl p-space-lg shadow-xl overflow-hidden">
+<!-- Ambient subtle background glow -->
+<div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary-container/10 blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-accent-mauve/15 blur-3xl pointer-events-none"></div>
+<!-- Task Context Tag -->
+<div class="w-full flex items-center justify-between mb-2">
+<span class="px-2.5 py-1 rounded-full bg-surface-container-high text-secondary-fixed font-label-sm text-label-sm truncate max-w-[200px]">
+        Work &gt; Development • Sprint #3
+      </span>
+<span class="flex items-center gap-1 text-text-muted font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-primary">psychology</span>
+        Deep Work
+      </span>
+</div>
+<!-- Task Title -->
+<h2 class="w-full text-center font-headline-sm text-headline-sm text-on-surface line-clamp-2 mt-1 mb-4">
+      Refactor authentication flow &amp; token refresh
+    </h2>
+<!-- Circular Pomodoro Progress Display -->
+<div class="relative w-56 h-56 flex items-center justify-center my-2">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 200 200">
+<!-- Track Ring -->
+<circle class="text-surface-container-high" cx="100" cy="100" fill="transparent" r="86" stroke="currentColor" stroke-width="8"></circle>
+<!-- Glowing Progress Ring -->
+<circle class="text-primary-container" cx="100" cy="100" fill="transparent" id="timer-ring" r="86" stroke="currentColor" stroke-dasharray="540.35" stroke-dashoffset="125" stroke-linecap="round" stroke-width="9" style="filter: drop-shadow(0px 0px 8px rgba(247, 82, 112, 0.4));"></circle>
+</svg>
+<!-- Center Display Content -->
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center select-none">
+<span class="font-label-sm text-label-sm text-text-muted tracking-widest uppercase">Remaining</span>
+<span class="font-metric-lg text-metric-lg text-on-surface tracking-tight my-0.5" id="timer-display">24:34</span>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary">
+<span class="material-symbols-outlined text-[13px] animate-spin" style="animation-duration: 4s;">timelapse</span>
+          Block 3 of 4
+        </span>
+</div>
+</div>
+<!-- Interval Segment Indicator Bar -->
+<div class="w-full flex items-center justify-center gap-2 mt-3 mb-5 px-4">
+<div class="flex-1 h-1.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(247,82,112,0.4)]"></div>
+<div class="flex-1 h-1.5 rounded-full bg-primary-container shadow-[0_0_8px_rgba(247,82,112,0.4)]"></div>
+<div class="flex-1 h-1.5 rounded-full bg-primary-container animate-pulse"></div>
+<div class="flex-1 h-1.5 rounded-full bg-surface-container-high"></div>
+</div>
+<!-- Timer Control Actions -->
+<div class="w-full flex items-center justify-center gap-space-sm">
+<button aria-label="Reset Timer" class="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-transform active:scale-90" id="btn-reset" type="button">
+<span class="material-symbols-outlined text-[20px]">restart_alt</span>
+</button>
+<!-- Main Pause / Resume CTA -->
+<button class="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-semibold shadow-lg shadow-primary-container/25 transition-transform active:scale-95" id="btn-toggle" type="button">
+<span class="material-symbols-outlined text-[22px]" id="btn-toggle-icon">pause</span>
+<span id="btn-toggle-text">Pause Session</span>
+</button>
+<!-- Quick Extend +5m -->
+<button aria-label="Add 5 Minutes" class="w-12 h-12 flex flex-col items-center justify-center rounded-xl bg-surface-container text-secondary-fixed hover:bg-surface-container-high transition-transform active:scale-90" id="btn-extend" type="button">
+<span class="font-label-sm text-label-sm font-bold">+5m</span>
+</button>
+<!-- Stop & Log -->
+<button aria-label="Stop Session and Log" class="w-12 h-12 flex items-center justify-center rounded-xl bg-error-container text-on-error-container hover:bg-error transition-transform active:scale-90" id="btn-stop" type="button">
+<span class="material-symbols-outlined text-[20px]">stop</span>
+</button>
+</div>
+<div class="mt-4 flex items-center gap-3 text-text-muted font-label-sm text-label-sm">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">nest_clock_farsight_analog</span>
+        25m Focus Block
+      </span>
+<span>•</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">coffee</span>
+        5m Short Break
+      </span>
+</div>
+</section>
+<!-- 3. Offload Scratchpad Card -->
+<section class="flex flex-col bg-surface-elevated rounded-xl p-space-md gap-space-sm shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">edit_note</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Thought Scratchpad</h3>
+</div>
+<span class="font-label-sm text-label-sm text-text-muted">Dump distractions</span>
+</div>
+<!-- Quick Capture Input -->
+<form class="relative flex items-center w-full" id="scratchpad-form">
+<input class="w-full h-11 pl-3 pr-10 rounded-lg bg-surface-container text-on-surface placeholder:text-text-muted font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary-container transition-all" id="scratchpad-input" placeholder="Write intruding thought and press Enter..." type="text"/>
+<button aria-label="Add thought" class="absolute right-1.5 w-8 h-8 flex items-center justify-center rounded-md text-primary-container hover:bg-surface-container-high transition-colors" type="submit">
+<span class="material-symbols-outlined text-[20px]">subdirectory_arrow_left</span>
+</button>
+</form>
+<!-- Offloaded Items List -->
+<ul class="flex flex-col gap-1.5 mt-1" id="scratchpad-list">
+<li class="flex items-center justify-between px-3 py-2 rounded-lg bg-surface-container-high/60 text-on-surface">
+<span class="font-body-sm text-body-sm text-on-surface truncate">Reply to designer regarding mobile mockups</span>
+<button aria-label="Dismiss thought" class="scratchpad-dismiss text-text-muted hover:text-error transition-colors p-1 shrink-0 ml-2" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</li>
+<li class="flex items-center justify-between px-3 py-2 rounded-lg bg-surface-container-high/60 text-on-surface">
+<span class="font-body-sm text-body-sm text-on-surface truncate">Order replacement USB-C braided cable</span>
+<button aria-label="Dismiss thought" class="scratchpad-dismiss text-text-muted hover:text-error transition-colors p-1 shrink-0 ml-2" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</li>
+</ul>
+</section>
+<!-- 4. Today's Focus Metrics Row -->
+<section class="grid grid-cols-3 gap-space-sm">
+<div class="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-elevated text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-text-muted mb-1">Total Focus</span>
+<span class="font-metric-md text-metric-md text-primary-container">3h 45m</span>
+<span class="font-label-sm text-label-sm text-text-muted mt-0.5">+15% vs yest</span>
+</div>
+<div class="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-elevated text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-text-muted mb-1">Blocks Done</span>
+<span class="font-metric-md text-metric-md text-on-surface">8</span>
+<span class="font-label-sm text-label-sm text-secondary-fixed mt-0.5">Target: 10</span>
+</div>
+<div class="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-elevated text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-text-muted mb-1">Avg Span</span>
+<span class="font-metric-md text-metric-md text-on-surface">28.5m</span>
+<span class="font-label-sm text-label-sm text-text-muted mt-0.5">High Focus</span>
+</div>
+</section>
+<!-- 5. Recent Focus Log (Mobile Timeline) -->
+<section class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-fixed text-[20px]">history</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Today's Log</h3>
+</div>
+<span class="font-label-sm text-label-sm text-primary">3 Completed</span>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Item 1 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-elevated hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-primary-container/20 text-primary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-semibold text-on-surface truncate">Refactor authentication flow</span>
+<span class="font-label-sm text-label-sm text-text-muted">16:00 – 16:45 • 45m focused</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary shrink-0 ml-2">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+          100%
+        </span>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-elevated hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-secondary-fixed flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">code_blocks</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-semibold text-on-surface truncate">Review PR #42 sync pipeline</span>
+<span class="font-label-sm text-label-sm text-text-muted">14:30 – 15:15 • 45m focused</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary shrink-0 ml-2">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+          100%
+        </span>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-elevated hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-3 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-secondary-fixed flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md font-semibold text-on-surface truncate">System architecture reading</span>
+<span class="font-label-sm text-label-sm text-text-muted">11:15 – 11:45 • 30m focused</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary shrink-0 ml-2">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+          100%
+        </span>
+</div>
+</div>
+</section>
+</div>
+<script>
+  (function() {
+    let totalSeconds = 24 * 60 + 34;
+    let isRunning = true;
+    let timerInterval = null;
+
+    const timerDisplay = document.getElementById('timer-display');
+    const toggleBtn = document.getElementById('btn-toggle');
+    const toggleIcon = document.getElementById('btn-toggle-icon');
+    const toggleText = document.getElementById('btn-toggle-text');
+    const resetBtn = document.getElementById('btn-reset');
+    const extendBtn = document.getElementById('btn-extend');
+    const stopBtn = document.getElementById('btn-stop');
+    const timerRing = document.getElementById('timer-ring');
+
+    const totalDuration = 25 * 60;
+    const perimeter = 540.35;
+
+    function updateDisplay() {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      timerDisplay.textContent = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+      const progress = Math.max(0, Math.min(1, (totalDuration - totalSeconds) / totalDuration));
+      const offset = perimeter * (1 - progress);
+      timerRing.style.strokeDashoffset = offset;
+    }
+
+    function startTimer() {
+      if (!timerInterval) {
+        timerInterval = setInterval(() => {
+          if (totalSeconds > 0) {
+            totalSeconds--;
+            updateDisplay();
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            isRunning = false;
+            toggleIcon.textContent = 'play_arrow';
+            toggleText.textContent = 'Start Break';
+          }
+        }, 1000);
+      }
+      isRunning = true;
+      toggleIcon.textContent = 'pause';
+      toggleText.textContent = 'Pause Session';
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      isRunning = false;
+      toggleIcon.textContent = 'play_arrow';
+      toggleText.textContent = 'Resume Session';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      if (isRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      pauseTimer();
+      totalSeconds = 25 * 60;
+      updateDisplay();
+    });
+
+    extendBtn.addEventListener('click', () => {
+      totalSeconds += 5 * 60;
+      updateDisplay();
+    });
+
+    stopBtn.addEventListener('click', () => {
+      pauseTimer();
+      totalSeconds = 0;
+      updateDisplay();
+      toggleText.textContent = 'Session Saved';
+    });
+
+    startTimer();
+
+    // Scratchpad Interactive Handler
+    const form = document.getElementById('scratchpad-form');
+    const input = document.getElementById('scratchpad-input');
+    const list = document.getElementById('scratchpad-list');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (!val) return;
+
+      const li = document.createElement('li');
+      li.className = 'flex items-center justify-between px-3 py-2 rounded-lg bg-surface-container-high/60 text-on-surface transition-all';
+      li.innerHTML = `
+        <span class="font-body-sm text-body-sm text-on-surface truncate">${val}</span>
+        <button type="button" aria-label="Dismiss thought" class="scratchpad-dismiss text-text-muted hover:text-error transition-colors p-1 shrink-0 ml-2">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      `;
+
+      li.querySelector('.scratchpad-dismiss').addEventListener('click', () => {
+        li.remove();
+      });
+
+      list.prepend(li);
+      input.value = '';
+    });
+
+    document.querySelectorAll('.scratchpad-dismiss').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const item = e.currentTarget.closest('li');
+        if (item) item.remove();
+      });
+    });
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface-container-low/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.35)]" data-active-classes="text-primary-container font-semibold"><div class="flex items-center justify-around h-16 px-space-xs"><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-text-muted hover:text-on-surface transition-colors" data-path="overview" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="font-label-sm text-label-sm">Overview</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-text-muted hover:text-on-surface transition-colors" data-path="tasks" href="#"><span class="material-symbols-outlined text-[22px]">check_circle</span><span class="font-label-sm text-label-sm">Tasks</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-text-muted hover:text-on-surface transition-colors" data-path="categories" href="#"><span class="material-symbols-outlined text-[22px]">folder_special</span><span class="font-label-sm text-label-sm">Categories</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 transition-colors text-primary-container font-semibold" data-path="focus" href="#"><span class="material-symbols-outlined text-[22px]">timer</span><span class="font-label-sm text-label-sm">Focus</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-text-muted hover:text-on-surface transition-colors" data-path="analytics" href="#"><span class="material-symbols-outlined text-[22px]">monitoring</span><span class="font-label-sm text-label-sm">Analytics</span></a></div></nav></body></html>

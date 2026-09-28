@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-high": "#2d292a", "secondary-fixed-dim": "#d1c5b3", "secondary": "#d1c5b3", "on-primary-container": "#5b001a", "on-surface-variant": "#e1bec0", "on-primary": "#67001f", "surface-overlay": "#262023", "outline-variant": "#594042", "on-secondary-container": "#bfb4a2", "surface-dim": "#161213", "on-tertiary-container": "#38242a", "on-primary-fixed-variant": "#91002f", "secondary-fixed": "#ede1ce", "tertiary-fixed-dim": "#ddbfc5", "surface-container-low": "#1f1a1b", "text-muted": "#A89B9D", "primary-fixed": "#ffdadc", "surface": "#161213", "on-tertiary": "#3f2b30", "tertiary-container": "#a58a90", "primary-container": "#fb5573", "tertiary": "#ddbfc5", "surface-tint": "#ffb2b9", "surface-container": "#231e1f", "background": "#161213", "surface-elevated": "#1E1A1C", "on-secondary": "#363023", "on-secondary-fixed-variant": "#4d4638", "surface-variant": "#383335", "on-tertiary-fixed": "#28171b", "surface-base": "#131112", "primary": "#ffb2b9", "surface-container-highest": "#383335", "inverse-surface": "#eae0e1", "error": "#ffb4ab", "error-container": "#93000a", "border-active": "rgba(247, 82, 112, 0.4)", "inverse-primary": "#b51f44", "on-background": "#eae0e1", "on-error-container": "#ffdad6", "border-subtle": "rgba(255, 242, 223, 0.08)", "on-primary-fixed": "#400010", "primary-fixed-dim": "#ffb2b9", "surface-container-lowest": "#110d0e", "outline": "#a8898b", "secondary-container": "#4d4638", "tertiary-fixed": "#fbdbe1", "on-surface": "#eae0e1", "inverse-on-surface": "#342f30", "on-error": "#690005", "on-secondary-fixed": "#211b0f", "on-tertiary-fixed-variant": "#574146", "accent-mauve": "#8B5E63", "surface-bright": "#3d3839" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xl": "2rem", "margin-tablet": "2rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "space-md": "1rem", "gutter": "1rem", "space-xs": "0.25rem", "gutter-desktop": "1.5rem", "margin": "1rem", "margin-desktop": "3rem" }, "fontFamily": { "body-lg": [ "Hanken Grotesk" ], "display-lg-mobile": [ "Plus Jakarta Sans" ], "metric-lg": [ "JetBrains Mono" ], "body-md": [ "Hanken Grotesk" ], "display-lg": [ "Plus Jakarta Sans" ], "label-md": [ "JetBrains Mono" ], "metric-md": [ "JetBrains Mono" ], "label-sm": [ "JetBrains Mono" ], "headline-sm": [ "Plus Jakarta Sans" ], "headline-md": [ "Plus Jakarta Sans" ], "headline-lg": [ "Plus Jakarta Sans" ], "body-sm": [ "Hanken Grotesk" ] }, "fontSize": { "body-lg": [ "16px", { "lineHeight": "24px", "fontWeight": "400" } ], "display-lg-mobile": [ "32px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" } ], "metric-lg": [ "32px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" } ], "label-md": [ "13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "metric-md": [ "20px", { "lineHeight": "26px", "fontWeight": "500" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "500" } ], "headline-sm": [ "18px", { "lineHeight": "24px", "fontWeight": "600" } ], "headline-md": [ "22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "headline-lg": [ "28px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-sm": [ "12px", { "lineHeight": "16px", "fontWeight": "400" } ] } } } };</script></head><body class="bg-surface-base font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-elevated z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col flex-1 overflow-y-auto px-space-md pt-space-lg"><div class="flex items-center justify-between mb-space-lg px-space-xs"><div class="flex items-center gap-space-sm"><img alt="HabitForge Lite Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VVgnqnXlKepr5A7Sqh8J7MHUsSpuQr6-Q0BaTriYbcNi2XQFW7lGBJChE4afp9M8dTVr1zQngSSgAtl2yDSBZXW2K0r0yHZ0ULEaxTC_3TUl6bMPljNGQj8fBhMTYxl_qmNA6t2XPwJqSWZrVfaSOUynTYAOCoJjIa78ttifl2Ed3VjnVFTfP3-bmsVvZl4zxvFRTEQDSAQUOpqRUsImTZnLKWCb1dPF1QZxt_U-Q2jPCD6WgSDHbcYw"/><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface font-semibold">HabitForge</span><span class="px-space-xs py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-secondary">v2.4</span></div></div><button class="flex items-center justify-center w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Collapse sidebar" type="button"><span class="material-symbols-outlined text-[18px]">dock_to_right</span></button></div><nav class="flex flex-col gap-1" data-active-classes="bg-surface-overlay text-primary font-headline-sm"><a class="group flex items-center justify-between px-space-md py-space-sm rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="overview" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-on-surface transition-colors">grid_view</span><span>Overview</span></div><span class="w-1.5 h-1.5 rounded-full bg-primary-container shadow-[0_0_8px_#fb5573]"></span></a><a class="group flex items-center justify-between px-space-md py-space-sm rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="tasks" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-on-surface transition-colors">check_circle</span><span>Tasks</span></div><span class="px-space-xs py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-secondary">12</span></a><a class="group flex items-center justify-between px-space-md py-space-sm rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="categories" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-on-surface transition-colors">folder_open</span><span>Categories</span></div><span class="px-space-xs py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-secondary">4</span></a><a class="group flex items-center justify-between px-space-md py-space-sm rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="focus-session" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-on-surface transition-colors">timer</span><span>Focus</span></div><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-primary-container"></span></span></a><a aria-current="page" class="group flex items-center gap-space-sm px-space-md py-space-sm rounded-xl transition-colors bg-surface-overlay text-primary font-headline-sm" data-path="analytics" href="#"><span class="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-on-surface transition-colors">insights</span><span>Analytics</span></a></nav><div class="my-space-md h-px bg-surface-variant/40"></div><div class="px-space-xs mb-space-sm"><span class="font-label-sm text-label-sm uppercase tracking-wider text-text-muted">Favorites &amp; Categories</span></div><div class="flex flex-col gap-1"><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="category-work" href="#"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-primary-container"></span><span>Work</span></div><span class="font-label-sm text-label-sm text-text-muted">8</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="category-health" href="#"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-secondary-fixed"></span><span>Health</span></div><span class="font-label-sm text-label-sm text-text-muted">3</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="category-learning" href="#"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-accent-mauve"></span><span>Learning</span></div><span class="font-label-sm text-label-sm text-text-muted">5</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-xl font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="category-personal" href="#"><div class="flex items-center gap-space-sm"><span class="w-2 h-2 rounded-full bg-tertiary-container"></span><span>Personal</span></div><span class="font-label-sm text-label-sm text-text-muted">2</span></a></div></div><div class="p-space-md bg-surface-container-low/60 m-space-sm rounded-xl"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="relative"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUxISK0Fj8La-5MeTY9IZfEIVwncBxYCcNxFYZj9-YvrUg4I0WGuGQkNittQ3sTTurlDhflmMYGk4ZMe-G4Eft4bSOj7FkTkp-Y0_T64i581t_OYFkUVAAYt92_SE8cb4cdGiaQrfI7zmL9mJSN3XinbfPn_TfCW4N7WJyf-nrkglqQlhsyZTMS7C_Cw_1iL1aumkl11skDjo-UVoKKoaG-TLJqWneV1SuRP5W319KE8D5Hbua8SBT"/><span class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-primary-container ring-2 ring-surface-elevated"></span></div><div class="flex flex-col"><span class="font-headline-sm text-body-md font-semibold text-on-surface leading-tight">Namish</span><div class="flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[12px] text-text-muted">cloud_done</span><span class="font-label-sm text-label-sm text-text-muted">GitHub Synced</span></div></div></div><a class="flex items-center justify-center w-8 h-8 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="settings" href="#" title="Workspace Settings"><span class="material-symbols-outlined text-[18px]">settings</span></a></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-base/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-gutter-desktop"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs font-label-md text-label-md text-text-muted"><span class="hover:text-on-surface cursor-pointer transition-colors">Overview</span><span class="material-symbols-outlined text-[14px]">chevron_right</span><span class="text-on-surface font-semibold">Today's Command Center</span></div><div class="relative hidden xl:flex items-center"><span class="material-symbols-outlined absolute left-space-md text-[18px] text-text-muted pointer-events-none">search</span><input class="w-72 bg-surface-container-lowest text-on-surface placeholder:text-text-muted font-body-sm text-body-sm pl-9 pr-space-md py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary-container transition-all" placeholder="Search tasks, categories... ⌘K" type="text"/></div></div><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-space-sm px-space-md py-1.5 rounded-full bg-surface-container-low"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-primary-container"></span></span><span class="font-label-sm text-label-sm text-secondary">Deep Work:</span><span class="font-metric-md text-label-md text-primary font-semibold">18:42</span></div><button class="flex items-center gap-space-xs px-space-md py-1.5 rounded-lg bg-primary-container text-on-primary-container font-headline-sm text-label-md font-bold shadow-[0_4px_20px_-2px_rgba(247,82,112,0.25)] hover:opacity-95 transition-opacity" type="button"><span class="material-symbols-outlined text-[16px]">add</span><span>Quick Add</span></button><div class="flex items-center gap-space-xs pl-space-xs"><button class="flex items-center p-1 rounded-full hover:bg-surface-container-high transition-colors" type="button"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUxISK0Fj8La-5MeTY9IZfEIVwncBxYCcNxFYZj9-YvrUg4I0WGuGQkNittQ3sTTurlDhflmMYGk4ZMe-G4Eft4bSOj7FkTkp-Y0_T64i581t_OYFkUVAAYt92_SE8cb4cdGiaQrfI7zmL9mJSN3XinbfPn_TfCW4N7WJyf-nrkglqQlhsyZTMS7C_Cw_1iL1aumkl11skDjo-UVoKKoaG-TLJqWneV1SuRP5W319KE8D5Hbua8SBT"/></button></div></div></header><main class="w-full pt-16 bg-surface-base px-gutter-desktop py-space-lg min-h-screen"><div class="flex flex-col w-full gap-space-lg">
+<!-- Header Section with Range Filter & Actions -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-0.5 rounded-full bg-secondary-container text-secondary font-label-sm text-label-sm uppercase tracking-wider">Metrics &amp; Telemetry</span>
+<span class="text-text-muted font-label-sm text-label-sm">•</span>
+<span class="text-text-muted font-label-sm text-label-sm">Real-time sync</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight">Productivity Analytics</h1>
+<p class="font-body-md text-body-md text-text-muted">Data-driven insights into your focus habits, completion velocity, and ritual consistency.</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Time Range Selectors -->
+<div class="flex items-center p-1 rounded-xl bg-surface-container-low shadow-sm">
+<button class="range-pill px-space-md py-1.5 rounded-lg font-label-sm text-label-sm text-text-muted hover:text-on-surface transition-all" type="button">Last 7 Days</button>
+<button class="range-pill active px-space-md py-1.5 rounded-lg font-label-sm text-label-sm bg-surface-overlay text-primary font-semibold shadow-sm transition-all" type="button">Last 30 Days</button>
+<button class="range-pill px-space-md py-1.5 rounded-lg font-label-sm text-label-sm text-text-muted hover:text-on-surface transition-all" type="button">Last 90 Days</button>
+<button class="range-pill px-space-md py-1.5 rounded-lg font-label-sm text-label-sm text-text-muted hover:text-on-surface transition-all" type="button">Year to Date</button>
+</div>
+<!-- Export Button -->
+<div class="relative">
+<button class="flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-surface-elevated hover:bg-surface-overlay text-secondary font-label-md text-label-md transition-colors shadow-sm" id="exportBtn" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">download</span>
+<span>Export Data</span>
+<span class="material-symbols-outlined text-[14px] text-text-muted">expand_more</span>
+</button>
+<div class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-surface-overlay shadow-xl p-1 z-30 flex flex-col gap-0.5" id="exportDropdown">
+<button class="flex items-center justify-between px-space-md py-2 rounded-lg hover:bg-surface-container-high text-left font-body-sm text-body-sm text-on-surface transition-colors" type="button">
+<span>Download CSV</span>
+<span class="font-label-sm text-label-sm text-text-muted">.csv</span>
+</button>
+<button class="flex items-center justify-between px-space-md py-2 rounded-lg hover:bg-surface-container-high text-left font-body-sm text-body-sm text-on-surface transition-colors" type="button">
+<span>Raw JSON Dump</span>
+<span class="font-label-sm text-label-sm text-text-muted">.json</span>
+</button>
+<div class="h-px bg-surface-variant my-1"></div>
+<button class="flex items-center gap-space-xs px-space-md py-2 rounded-lg hover:bg-surface-container-high text-left font-body-sm text-body-sm text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">cloud_sync</span>
+<span>Push to GitHub</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- KPI Metrics Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Completion Rate -->
+<div class="group relative rounded-xl bg-surface-elevated p-space-lg flex flex-col justify-between overflow-hidden shadow-sm hover:bg-surface-overlay transition-all">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Completion Rate</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-lg text-metric-lg text-on-surface font-semibold tracking-tight">84.2%</span>
+<span class="flex items-center text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+            4.1%
+          </span>
+</div>
+<p class="font-body-sm text-body-sm text-text-muted">vs previous 30 day interval</p>
+</div>
+<!-- Mini micro progress bar -->
+<div class="w-full bg-surface-container h-1 rounded-full mt-space-md overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-700" style="width: 84.2%;"></div>
+</div>
+</div>
+<!-- Total Focus Time -->
+<div class="group relative rounded-xl bg-surface-elevated p-space-lg flex flex-col justify-between overflow-hidden shadow-sm hover:bg-surface-overlay transition-all">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Focus Duration</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">timer</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-lg text-metric-lg text-on-surface font-semibold tracking-tight">68h 30m</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-muted">Avg <span class="text-secondary font-medium">2.28h</span> dedicated / day</p>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full mt-space-md overflow-hidden">
+<div class="bg-secondary h-full rounded-full transition-all duration-700" style="width: 76%;"></div>
+</div>
+</div>
+<!-- Active Streak -->
+<div class="group relative rounded-xl bg-surface-elevated p-space-lg flex flex-col justify-between overflow-hidden shadow-sm hover:bg-surface-overlay transition-all">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Consistency Streak</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-lg text-metric-lg text-primary font-semibold tracking-tight">14 Days</span>
+<span class="px-space-xs py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-secondary">Current</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-muted">Personal record: <span class="text-on-surface font-semibold">21 days</span></p>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full mt-space-md overflow-hidden">
+<div class="bg-primary-container h-full rounded-full transition-all duration-700 shadow-[0_0_8px_#fb5573]" style="width: 66.6%;"></div>
+</div>
+</div>
+<!-- Task Velocity -->
+<div class="group relative rounded-xl bg-surface-elevated p-space-lg flex flex-col justify-between overflow-hidden shadow-sm hover:bg-surface-overlay transition-all">
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-label-sm text-label-sm text-text-muted uppercase tracking-wider">Task Velocity</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-lg text-metric-lg text-on-surface font-semibold tracking-tight">142</span>
+<span class="font-body-md text-body-md text-text-muted">completed</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-muted"><span class="text-primary font-medium">+18</span> above monthly target</p>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full mt-space-md overflow-hidden">
+<div class="bg-tertiary h-full rounded-full transition-all duration-700" style="width: 92%;"></div>
+</div>
+</div>
+</div>
+<!-- Heatmap Section -->
+<div class="flex flex-col rounded-xl bg-surface-elevated p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Activity Density &amp; Consistency</h2>
+<span class="px-space-xs py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-secondary">2026</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-muted">52-week micro-ritual logs and deep focus sessions</span>
+</div>
+<!-- Legend Indicator -->
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm text-text-muted self-start sm:self-center">
+<span>Less</span>
+<div class="w-3 h-3 rounded-xs bg-[#231C1E]"></div>
+<div class="w-3 h-3 rounded-xs bg-[#5E2633]"></div>
+<div class="w-3 h-3 rounded-xs bg-[#A6384E]"></div>
+<div class="w-3 h-3 rounded-xs bg-[#F75270] shadow-[0_0_6px_rgba(247,82,112,0.4)]"></div>
+<span>More</span>
+</div>
+</div>
+<!-- Heatmap Horizontal Scroll Container -->
+<div class="w-full overflow-x-auto pb-space-sm">
+<div class="min-w-[840px] flex flex-col gap-1.5 select-none">
+<!-- Month Labels -->
+<div class="flex pl-8 text-text-muted font-label-sm text-label-sm justify-between pr-2">
+<span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+<span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+</div>
+<div class="flex gap-2 items-start">
+<!-- Day Labels -->
+<div class="flex flex-col justify-between h-[106px] text-text-muted font-label-sm text-[10px] w-6 py-0.5 leading-none">
+<span>Mon</span>
+<span>Wed</span>
+<span>Fri</span>
+<span>Sun</span>
+</div>
+<!-- Heatmap Grid SVG -->
+<div class="flex-1">
+<svg class="w-full h-auto text-on-surface" viewbox="0 0 884 112" xmlns="http://www.w3.org/2000/svg">
+<g id="heatmapCells">
+<!-- Programmatically simulated 52x7 grid with Nocturne Focus levels -->
+<!-- Level 0: #231C1E, Level 1: #5E2633, Level 2: #A6384E, Level 3: #F75270 -->
+<script>
+                  // Grid inline generation
+                  (function(){
+                    const svgG = document.getElementById('heatmapCells');
+                    if(!svgG) return;
+                    const cols = 52;
+                    const rows = 7;
+                    const size = 11;
+                    const gap = 4;
+                    const colors = ['#231C1E', '#5E2633', '#A6384E', '#F75270'];
+                    // Deterministic seed simulation for authentic productivity pattern
+                    let rects = '';
+                    for(let c = 0; c < cols; c++) {
+                      for(let r = 0; r < rows; r++) {
+                        let level = 0;
+                        const rand = Math.sin(c * 17 + r * 31) * 10000;
+                        const prob = rand - Math.floor(rand);
+                        if(c > 44) {
+                          // Strong active streak in last weeks
+                          level = prob > 0.15 ? (prob > 0.45 ? 3 : 2) : 1;
+                        } else if(c % 6 === 0) {
+                          level = prob > 0.5 ? 2 : 1;
+                        } else if(r === 5 || r === 6) {
+                          // Weekends slightly varied
+                          level = prob > 0.6 ? 2 : (prob > 0.3 ? 1 : 0);
+                        } else {
+                          level = prob > 0.7 ? 3 : (prob > 0.4 ? 2 : (prob > 0.18 ? 1 : 0));
+                        }
+                        const x = c * (size + gap);
+                        const y = r * (size + gap);
+                        const fill = colors[level];
+                        rects += `<rect class="hover:opacity-80 transition-opacity cursor-pointer" data-date="Week ${c+1}, Day ${r+1}" fill="${fill}" height="${size}" rx="2" width="${size}" x="${x}" y="${y}"></rect>`;
+                      }
+                    }
+                    svgG.innerHTML = rects;
+                  })();
+                </script>
+</g>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<!-- Heatmap Meta Footer -->
+<div class="mt-space-md pt-space-md flex flex-wrap items-center justify-between gap-space-sm text-text-muted font-body-sm text-body-sm bg-surface-container-low/50 px-space-md py-space-sm rounded-lg">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_#fb5573]"></span>
+<span class="text-on-surface font-semibold">1,248</span> total sessions logged in 2026
+      </div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm">
+<span>Longest streak: <strong class="text-secondary font-semibold">21 days</strong></span>
+<span>•</span>
+<span>Current run: <strong class="text-primary font-semibold">14 days</strong></span>
+<span>•</span>
+<span>Consistency: <strong class="text-on-surface font-semibold">91.4%</strong></span>
+</div>
+</div>
+</div>
+<!-- Detailed Charts 2-Column Row -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Col 1: Weekly Velocity Line & Area Chart (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col rounded-xl bg-surface-elevated p-space-lg shadow-sm">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Weekly Productivity Trend</h2>
+<span class="font-body-sm text-body-sm text-text-muted">Tasks Completed vs Focus Hours (Mon - Sun)</span>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span class="text-on-surface">Tasks (Units)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-fixed"></span>
+<span class="text-on-surface">Focus (Hours)</span>
+</div>
+</div>
+</div>
+<!-- Area Chart SVG Container -->
+<div class="w-full relative h-64 flex flex-col justify-end">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 540 200">
+<defs>
+<lineargradient id="coralArea" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#fb5573" stop-opacity="0.32"></stop>
+<stop offset="100%" stop-color="#fb5573" stop-opacity="0.0"></stop>
+</lineargradient>
+<lineargradient id="creamArea" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#ede1ce" stop-opacity="0.18"></stop>
+<stop offset="100%" stop-color="#ede1ce" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Horizontal Reference lines -->
+<line stroke="#383335" stroke-dasharray="3 3" stroke-opacity="0.3" x1="0" x2="540" y1="20" y2="20"></line>
+<line stroke="#383335" stroke-dasharray="3 3" stroke-opacity="0.3" x1="0" x2="540" y1="70" y2="70"></line>
+<line stroke="#383335" stroke-dasharray="3 3" stroke-opacity="0.3" x1="0" x2="540" y1="120" y2="120"></line>
+<line stroke="#383335" stroke-opacity="0.5" x1="0" x2="540" y1="170" y2="170"></line>
+<!-- Tasks Completed Area & Line (Mon: 14, Tue: 22, Wed: 19, Thu: 28, Fri: 24, Sat: 16, Sun: 19) -->
+<!-- Scaled to 0-30 max -> y inverted from 170 to 20 -->
+<polygon fill="url(#coralArea)" points="0,100 90,60 180,75 270,30 360,50 450,90 540,75 540,170 0,170"></polygon>
+<path d="M 0,100 L 90,60 L 180,75 L 270,30 L 360,50 L 450,90 L 540,75" fill="none" stroke="#fb5573" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Focus Hours Area & Line (Mon: 2.2, Tue: 3.5, Wed: 2.8, Thu: 4.1, Fri: 3.2, Sat: 1.5, Sun: 2.1) -->
+<polygon fill="url(#creamArea)" points="0,130 90,95 180,110 270,80 360,105 450,145 540,130 540,170 0,170"></polygon>
+<path d="M 0,130 L 90,95 L 180,110 L 270,80 L 360,105 L 450,145 L 540,130" fill="none" stroke="#ede1ce" stroke-linecap="round" stroke-width="2"></path>
+<!-- Data Points -->
+<circle cx="0" cy="100" fill="#fb5573" r="3.5"></circle>
+<circle cx="90" cy="60" fill="#fb5573" r="3.5"></circle>
+<circle cx="180" cy="75" fill="#fb5573" r="3.5"></circle>
+<circle class="filter drop-shadow-[0_0_6px_#fb5573]" cx="270" cy="30" fill="#fb5573" r="4.5"></circle>
+<circle cx="360" cy="50" fill="#fb5573" r="3.5"></circle>
+<circle cx="450" cy="90" fill="#fb5573" r="3.5"></circle>
+<circle cx="540" cy="75" fill="#fb5573" r="3.5"></circle>
+</svg>
+<!-- X-axis Labels -->
+<div class="flex justify-between items-center pt-space-xs text-text-muted font-label-sm text-label-sm">
+<span>Mon</span>
+<span>Tue</span>
+<span>Wed</span>
+<span class="text-primary font-bold">Thu (Peak)</span>
+<span>Fri</span>
+<span>Sat</span>
+<span>Sun</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-md flex items-center justify-between bg-surface-container-low/40 px-space-md py-space-sm rounded-lg">
+<div class="flex items-center gap-space-xs font-body-sm text-body-sm text-text-muted">
+<span class="material-symbols-outlined text-[16px] text-primary">insights</span>
+<span>Peak flow window: <strong>Thursday afternoon</strong> with 28 tasks and 4.1h focus.</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-semibold">+14% vs last week</span>
+</div>
+</div>
+<!-- Col 2: Category Distribution Breakdown (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col rounded-xl bg-surface-elevated p-space-lg shadow-sm justify-between">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Category Allocation</h2>
+<span class="font-body-sm text-body-sm text-text-muted">Total 68.5 hours tracked</span>
+</div>
+<span class="material-symbols-outlined text-text-muted hover:text-on-surface cursor-pointer text-[20px]">more_horiz</span>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-space-lg my-space-sm">
+<!-- SVG Donut Chart -->
+<div class="relative w-40 h-40 flex items-center justify-center flex-shrink-0">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
+<!-- Background track -->
+<circle cx="50" cy="50" fill="transparent" r="38" stroke="#231e1f" stroke-width="12"></circle>
+<!-- Work (61% = 230 circumference * 0.61 = 140.3) stroke-dasharray="145 238" -->
+<circle cx="50" cy="50" fill="transparent" r="38" stroke="#fb5573" stroke-dasharray="145 238" stroke-dashoffset="0" stroke-width="12"></circle>
+<!-- Health (20% = 47.6) dashoffset = -145 -->
+<circle cx="50" cy="50" fill="transparent" r="38" stroke="#ede1ce" stroke-dasharray="47.6 238" stroke-dashoffset="-145" stroke-width="12"></circle>
+<!-- Learning (12% = 28.5) dashoffset = -(145+47.6) = -192.6 -->
+<circle cx="50" cy="50" fill="transparent" r="38" stroke="#ddbfc5" stroke-dasharray="28.5 238" stroke-dashoffset="-192.6" stroke-width="12"></circle>
+<!-- Personal (7% = 16.6) dashoffset = -(192.6+28.5) = -221.1 -->
+<circle cx="50" cy="50" fill="transparent" r="38" stroke="#8B5E63" stroke-dasharray="16.6 238" stroke-dashoffset="-221.1" stroke-width="12"></circle>
+</svg>
+<div class="absolute flex flex-col items-center justify-center pointer-events-none">
+<span class="font-metric-md text-headline-sm font-semibold text-on-surface">68.5h</span>
+<span class="font-label-sm text-[10px] text-text-muted uppercase">Allocated</span>
+</div>
+</div>
+<!-- Breakdown List -->
+<div class="flex flex-col gap-space-sm w-full">
+<!-- Work -->
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded-full bg-primary-container shadow-[0_0_6px_#fb5573]"></span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Work</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">42h</span>
+<span class="text-text-muted">(61%)</span>
+</div>
+</div>
+<!-- Health -->
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded-full bg-secondary-fixed"></span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Health &amp; Fitness</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">14h</span>
+<span class="text-text-muted">(20%)</span>
+</div>
+</div>
+<!-- Learning -->
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded-full bg-tertiary"></span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Learning &amp; Books</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">8.5h</span>
+<span class="text-text-muted">(12%)</span>
+</div>
+</div>
+<!-- Personal -->
+<div class="flex items-center justify-between p-2 rounded-lg hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="w-3 h-3 rounded-full bg-accent-mauve"></span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Personal Rituals</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">4h</span>
+<span class="text-text-muted">(7%)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-space-sm text-text-muted font-body-sm text-body-sm flex items-center justify-between">
+<span>Deep work ratio</span>
+<span class="font-metric-md text-label-md text-secondary font-semibold">73.8% total</span>
+</div>
+</div>
+</div>
+<!-- Daily Completion Performance Table -->
+<div class="flex flex-col rounded-xl bg-surface-elevated p-space-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Daily Breakdown &amp; Chrono-Performance</h2>
+<span class="font-body-sm text-body-sm text-text-muted">Granular day-of-week task yield, planned commitments, and peak energy intervals</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm transition-colors" type="button">Export Table</button>
+</div>
+</div>
+<!-- Responsive Table -->
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left font-body-md text-body-md">
+<thead>
+<tr class="bg-surface-container-low text-text-muted font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-space-sm px-space-md rounded-l-lg">Day of Week</th>
+<th class="py-space-sm px-space-md">Completion Velocity</th>
+<th class="py-space-sm px-space-md">Planned vs Realized</th>
+<th class="py-space-sm px-space-md">Avg Focus Duration</th>
+<th class="py-space-sm px-space-md">Peak Productive Window</th>
+<th class="py-space-sm px-space-md text-right rounded-r-lg">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant/20">
+<!-- Monday -->
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="py-space-md px-space-md font-medium text-on-surface flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Monday</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-24 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 82%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">82%</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">18</span> / 22 tasks
+            </td>
+<td class="py-space-md px-space-md font-metric-md text-label-md text-secondary">2h 15m</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-1 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">09:30 - 11:45 AM</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="px-space-xs py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-secondary">Optimal</span>
+</td>
+</tr>
+<!-- Tuesday -->
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="py-space-md px-space-md font-medium text-on-surface flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Tuesday</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-24 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 88%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">88%</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">22</span> / 25 tasks
+            </td>
+<td class="py-space-md px-space-md font-metric-md text-label-md text-secondary">3h 30m</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-1 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">10:00 - 12:30 PM</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="px-space-xs py-0.5 rounded-full bg-primary-container/20 text-primary font-label-sm text-label-sm font-semibold">High Yield</span>
+</td>
+</tr>
+<!-- Wednesday -->
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="py-space-md px-space-md font-medium text-on-surface flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Wednesday</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-24 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 79%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">79%</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">19</span> / 24 tasks
+            </td>
+<td class="py-space-md px-space-md font-metric-md text-label-md text-secondary">2h 45m</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-1 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">02:00 - 04:30 PM</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="px-space-xs py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-secondary">Consistent</span>
+</td>
+</tr>
+<!-- Thursday (Highlighted Peak) -->
+<tr class="bg-surface-container-low/40 hover:bg-surface-overlay/60 transition-colors">
+<td class="py-space-md px-space-md font-medium text-primary flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary-container shadow-[0_0_6px_#fb5573]"></span>
+<span class="font-semibold">Thursday</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-24 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 93%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold">93%</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm">
+<span class="text-primary font-bold">28</span> / 30 tasks
+            </td>
+<td class="py-space-md px-space-md font-metric-md text-label-md text-primary font-bold">4h 10m</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-1 rounded bg-primary-container/20 text-primary font-label-sm text-label-sm font-semibold">09:00 - 11:30 AM</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="px-space-xs py-0.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold">Peak Day</span>
+</td>
+</tr>
+<!-- Friday -->
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="py-space-md px-space-md font-medium text-on-surface flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Friday</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-24 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 85%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">85%</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">24</span> / 28 tasks
+            </td>
+<td class="py-space-md px-space-md font-metric-md text-label-md text-secondary">3h 15m</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-1 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">10:30 - 01:00 PM</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="px-space-xs py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-secondary">High Yield</span>
+</td>
+</tr>
+<!-- Saturday -->
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="py-space-md px-space-md font-medium text-text-muted flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>
+<span>Saturday</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-24 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 75%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">75%</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">15</span> / 20 tasks
+            </td>
+<td class="py-space-md px-space-md font-metric-md text-label-md text-secondary">1h 30m</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-1 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">08:00 - 09:30 AM</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="px-space-xs py-0.5 rounded-full bg-surface-container-low font-label-sm text-label-sm text-text-muted">Recovery</span>
+</td>
+</tr>
+<!-- Sunday -->
+<tr class="hover:bg-surface-overlay/50 transition-colors">
+<td class="py-space-md px-space-md font-medium text-text-muted flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>
+<span>Sunday</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-24 bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 78%;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">78%</span>
+</div>
+</td>
+<td class="py-space-md px-space-md font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">16</span> / 20 tasks
+            </td>
+<td class="py-space-md px-space-md font-metric-md text-label-md text-secondary">2h 05m</td>
+<td class="py-space-md px-space-md">
+<span class="px-space-xs py-1 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">04:00 - 06:00 PM</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="px-space-xs py-0.5 rounded-full bg-surface-container-low font-label-sm text-label-sm text-text-muted">Planning</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Interactive JavaScript logic -->
+<script>
+    // Handle Range Filter Pills
+    const rangePills = document.querySelectorAll('.range-pill');
+    rangePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        rangePills.forEach(p => {
+          p.classList.remove('bg-surface-overlay', 'text-primary', 'font-semibold', 'shadow-sm');
+          p.classList.add('text-text-muted');
+        });
+        pill.classList.remove('text-text-muted');
+        pill.classList.add('bg-surface-overlay', 'text-primary', 'font-semibold', 'shadow-sm');
+      });
+    });
+
+    // Handle Export dropdown toggle
+    const exportBtn = document.getElementById('exportBtn');
+    const exportDropdown = document.getElementById('exportDropdown');
+    if (exportBtn && exportDropdown) {
+      exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportDropdown.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', () => {
+        if (!exportDropdown.classList.contains('hidden')) {
+          exportDropdown.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+</div></main></div></body></html>
